@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import CareerPreview from './components/CareerPreview'
 import { sampleCareer } from './data/sampleCareer'
+import ResumePreview from './components/ResumePreview'
+import { sampleProfile, sampleResume } from './data/sampleResume'
 
 type Profile = {
   schemaVersion: 1
@@ -70,8 +72,8 @@ function getErrorMessage(error: unknown): string {
 }
 
 function App() {
-  const [directory, setDirectory] =
-    useState<LocalDirectoryHandle | null>(null)
+  const [previewType, setPreviewType] =  useState<'career' | 'resume'>('career')
+  const [directory, setDirectory] = useState<LocalDirectoryHandle | null>(null)
 
   const [profile, setProfile] = useState<Profile>({
     schemaVersion: 1,
@@ -224,16 +226,40 @@ function App() {
       <p role="status">{busy ? '処理中です…' : message}</p>
 
       <div className="actions">
+        <button
+          type="button"
+          onClick={() => setPreviewType('career')}
+          aria-pressed={previewType === 'career'}
+        >
+          職務経歴書を表示
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setPreviewType('resume')}
+          aria-pressed={previewType === 'resume'}
+        >
+          履歴書を表示
+        </button>
+
         <button type="button" onClick={() => window.print()}>
-          職務経歴書を印刷・PDF保存
+          表示中の書類を印刷・PDF保存
         </button>
       </div>
 
-      <CareerPreview
-        fullName="山田 太郎（架空）"
-        documentDate="2026-11-18"
-        content={sampleCareer}
-      />
+      {previewType === 'career' ? (
+        <CareerPreview
+          fullName="山田 太郎（架空）"
+          documentDate="2026-11-18"
+          content={sampleCareer}
+        />
+      ) : (
+        <ResumePreview
+          profile={sampleProfile}
+          content={sampleResume}
+          documentDate="2026-11-18"
+        />
+      )}
     </main>
   )
 }

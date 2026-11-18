@@ -1,0 +1,163 @@
+.resume-document {
+  margin-top: 32px;
+  color: #111;
+  font-family: "Yu Gothic", "Meiryo", sans-serif;
+  font-size: 10pt;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.resume-page {
+  padding: 24px;
+  margin-bottom: 24px;
+  background: white;
+  border: 1px solid #cbd5e1;
+}
+
+.resume-document p {
+  margin: 3px 0;
+  white-space: pre-wrap;
+}
+
+.resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5mm;
+}
+
+.resume-header h1 {
+  margin: 0;
+  font-size: 20pt;
+  letter-spacing: 0.3em;
+}
+
+.resume-personal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 35mm;
+  gap: 6mm;
+  margin-bottom: 4mm;
+}
+
+.resume-name-area {
+  border: 1px solid #333;
+}
+
+.resume-field {
+  padding: 2mm 3mm;
+}
+
+.resume-field + .resume-field {
+  border-top: 1px solid #333;
+}
+
+.resume-field span,
+.resume-text-box span {
+  font-size: 8pt;
+}
+
+.resume-name {
+  font-size: 18pt;
+  min-height: 9mm;
+}
+
+.resume-photo {
+  width: 30mm;
+  height: 40mm;
+  border: 1px dashed #777;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  align-self: center;
+  font-size: 9pt;
+}
+
+.resume-address {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  border: 1px solid #333;
+}
+
+.resume-address > .resume-field + .resume-field {
+  border-top: none;
+  border-left: 1px solid #333;
+}
+
+.resume-contact {
+  border: 1px solid #333;
+  border-top: none;
+  margin-bottom: 5mm;
+}
+
+.resume-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 5mm;
+}
+
+.resume-year {
+  width: 18mm;
+}
+
+.resume-month {
+  width: 12mm;
+}
+
+.resume-table th,
+.resume-table td {
+  border: 1px solid #333;
+  padding: 1mm 2mm;
+  height: 7mm;
+  font-weight: normal;
+}
+
+.resume-table td:nth-child(-n + 2) {
+  text-align: center;
+}
+
+.resume-table td:nth-child(3) {
+  white-space: pre-wrap;
+}
+
+.resume-text-box {
+  border: 1px solid #333;
+  padding: 3mm;
+  margin-top: 5mm;
+}
+
+.resume-motivation {
+  min-height: 50mm;
+}
+
+.resume-requests {
+  min-height: 45mm;
+}
+
+.resume-note {
+  font-size: 8pt;
+}
+
+@media print {
+  .resume-document {
+    margin: 0;
+  }
+
+  .resume-page {
+    padding: 0;
+    margin: 0;
+    border: none;
+  }
+
+  .resume-page + .resume-page {
+    break-before: page;
+  }
+
+  .resume-table tr {
+    break-inside: avoid;
+  }
+
+  .resume-table thead {
+    display: table-header-group;
+  }
+}
