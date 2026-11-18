@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import CareerPreview from './components/CareerPreview'
+import { sampleCareer } from './data/sampleCareer'
 
 type Profile = {
   schemaVersion: 1
@@ -220,6 +222,18 @@ function App() {
       </fieldset>
 
       <p role="status">{busy ? '処理中です…' : message}</p>
+
+      <div className="actions">
+        <button type="button" onClick={() => window.print()}>
+          職務経歴書を印刷・PDF保存
+        </button>
+      </div>
+
+      <CareerPreview
+        fullName="山田 太郎（架空）"
+        documentDate="2026-11-18"
+        content={sampleCareer}
+      />
     </main>
   )
 }
