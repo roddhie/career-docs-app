@@ -1,121 +1,226 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+type Profile = {
+  schemaVersion: 1
+  name: string
+  summary: string
+}
+
+type WritableFile = {
+  write: (data: string) => Promise<void>
+  close: () => Promise<void>
+}
+
+type LocalFileHandle = {
+  getFile: () => Promise<File>
+  createWritable: () => Promise<WritableFile>
+}
+
+type LocalDirectoryHandle = {
+  name: string
+  getFileHandle: (
+    name: string,
+    options?: { create?: boolean },
+  ) => Promise<LocalFileHandle>
+}
+
+type DirectoryPickerWindow = Window & {
+  showDirectoryPicker?: (options: {
+    mode: 'readwrite'
+  }) => Promise<LocalDirectoryHandle>
+}
+
+const fileName = 'storage-test.json'
+
+function isProfile(value: unknown): value is Profile {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  const profile = value as Record<string, unknown>
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>軌道変更</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
+    profile.schemaVersion === 1 &&
+    typeof profile.name === 'string' &&
+    typeof profile.summary === 'string'
+  )
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof DOMException) {
+    switch (error.name) {
+      case 'AbortError':
+        return '操作をキャンセルしました。'
+      case 'NotAllowedError':
+        return 'フォルダへのアクセスが許可されていません。保存先を選び直してください。'
+      case 'NotFoundError':
+        return `${fileName}が見つかりません。先に保存してください。`
+    }
+  }
+
+  if (error instanceof SyntaxError) {
+    return 'JSONの形式が正しくありません。入力内容は保持しています。'
+  }
+
+  return error instanceof Error
+    ? error.message
+    : '処理に失敗しました。もう一度お試しください。'
+}
+
+function App() {
+  const [directory, setDirectory] =
+    useState<LocalDirectoryHandle | null>(null)
+
+  const [profile, setProfile] = useState<Profile>({
+    schemaVersion: 1,
+    name: '山田 太郎（架空）',
+    summary: 'Webアプリケーションの画面開発を担当しました。',
+  })
+
+  const [message, setMessage] = useState('保存先を選択してください。')
+  const [busy, setBusy] = useState(false)
+  const [dirty, setDirty] = useState(true)
+
+  const pickerWindow = window as DirectoryPickerWindow
+  const supported = typeof pickerWindow.showDirectoryPicker === 'function'
+
+  async function runOperation(operation: () => Promise<void>) {
+    setBusy(true)
+
+    try {
+      await operation()
+    } catch (error) {
+      setMessage(getErrorMessage(error))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function selectDirectory() {
+    const picker = pickerWindow.showDirectoryPicker
+
+    if (!picker) {
+      setMessage('保存先の選択に対応したChromeで開いてください。')
+      return
+    }
+
+    const selected = await picker.call(window, { mode: 'readwrite' })
+    setDirectory(selected)
+    setDirty(true)
+    setMessage(`保存先「${selected.name}」を選択しました。`)
+  }
+
+  async function saveProfile() {
+    if (!directory) return
+
+    const handle = await directory.getFileHandle(fileName, {
+      create: true,
+    })
+
+    const writable = await handle.createWritable()
+    await writable.write(JSON.stringify(profile, null, 2))
+    await writable.close()
+
+    setDirty(false)
+    setMessage(`${fileName}を保存しました。`)
+  }
+
+  async function loadProfile() {
+    if (!directory) return
+
+    if (
+      dirty &&
+      !window.confirm('現在の入力内容を、保存済みデータに置き換えますか？')
+    ) {
+      setMessage('読込をキャンセルしました。')
+      return
+    }
+
+    const handle = await directory.getFileHandle(fileName)
+    const file = await handle.getFile()
+    const data: unknown = JSON.parse(await file.text())
+
+    if (!isProfile(data)) {
+      throw new Error(
+        '対応していないデータ形式です。入力内容は保持しています。',
+      )
+    }
+
+    setProfile(data)
+    setDirty(false)
+    setMessage(`${fileName}を読み込みました。`)
+  }
+
+  function updateField(field: 'name' | 'summary', value: string) {
+    setProfile((current) => ({ ...current, [field]: value }))
+    setDirty(true)
+    setMessage('入力内容を変更しました。保存してください。')
+  }
+
+  return (
+    <main>
+      <h1>書類データの保存確認</h1>
+      <p>架空の名前・職務要約を使って保存と読込を確認します。</p>
+
+      {!supported && (
+        <p role="alert">
+          このブラウザはフォルダ選択に対応していません。
+          ChromeでローカルURLを開いてください。
+        </p>
+      )}
+
+      <fieldset disabled={busy}>
+        <legend>保存先</legend>
         <button
           type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          disabled={!supported}
+          onClick={() => void runOperation(selectDirectory)}
         >
-          Count is {count}
+          保存フォルダを選択
         </button>
-      </section>
+        <p>選択中のフォルダ：{directory?.name ?? '未選択'}</p>
+      </fieldset>
 
-      <div className="ticks"></div>
+      <fieldset disabled={busy}>
+        <legend>プロフィール</legend>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <label htmlFor="name">名前</label>
+        <input
+          id="name"
+          value={profile.name}
+          onChange={(event) => updateField('name', event.target.value)}
+        />
+
+        <label htmlFor="summary">職務要約</label>
+        <textarea
+          id="summary"
+          rows={5}
+          value={profile.summary}
+          onChange={(event) => updateField('summary', event.target.value)}
+        />
+
+        <p>{dirty ? '未保存の入力内容があります' : '保存済みデータと一致しています'}</p>
+
+        <div className="actions">
+          <button
+            type="button"
+            disabled={!directory}
+            onClick={() => void runOperation(saveProfile)}
+          >
+            JSONを保存
+          </button>
+          <button
+            type="button"
+            disabled={!directory}
+            onClick={() => void runOperation(loadProfile)}
+          >
+            JSONを読み込む
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </fieldset>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <p role="status">{busy ? '処理中です…' : message}</p>
+    </main>
   )
 }
 
