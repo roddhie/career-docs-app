@@ -108,8 +108,6 @@ export default function CareerPreview({
         <h2>自己PR</h2>
         <p>{content.selfPromotion}</p>
       </section>
-
-      <p className="career-end">以上</p>
     </article>
   )
 }

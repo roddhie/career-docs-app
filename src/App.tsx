@@ -1,18 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { ApplicationDocument } from './types/documents'
+import { createSampleApplication } from './data/createSampleApplication'
+import { isApplicationDocument } from './utils/validateApplication'
 import CareerPreview from './components/CareerPreview'
-import { sampleCareer } from './data/sampleCareer'
 import ResumePreview from './components/ResumePreview'
-import { sampleProfile, sampleResume } from './data/sampleResume'
-
-type Profile = {
-  schemaVersion: 1
-  name: string
-  summary: string
-}
 
 type WritableFile = {
   write: (data: string) => Promise<void>
   close: () => Promise<void>
+  abort: () => Promise<void>
 }
 
 type LocalFileHandle = {
@@ -34,21 +30,7 @@ type DirectoryPickerWindow = Window & {
   }) => Promise<LocalDirectoryHandle>
 }
 
-const fileName = 'storage-test.json'
-
-function isProfile(value: unknown): value is Profile {
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
-
-  const profile = value as Record<string, unknown>
-
-  return (
-    profile.schemaVersion === 1 &&
-    typeof profile.name === 'string' &&
-    typeof profile.summary === 'string'
-  )
-}
+const fileName = 'application.json'
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof DOMException) {
@@ -71,24 +53,43 @@ function getErrorMessage(error: unknown): string {
     : '処理に失敗しました。もう一度お試しください。'
 }
 
-function App() {
-  const [previewType, setPreviewType] =  useState<'career' | 'resume'>('career')
-  const [directory, setDirectory] = useState<LocalDirectoryHandle | null>(null)
+export default function App() {
+  const [application, setApplication] =
+    useState<ApplicationDocument>(createSampleApplication)
 
-  const [profile, setProfile] = useState<Profile>({
-    schemaVersion: 1,
-    name: '山田 太郎（架空）',
-    summary: 'Webアプリケーションの画面開発を担当しました。',
-  })
+  const [directory, setDirectory] =
+    useState<LocalDirectoryHandle | null>(null)
+
+  const [previewType, setPreviewType] =
+    useState<'career' | 'resume'>('career')
 
   const [message, setMessage] = useState('保存先を選択してください。')
   const [busy, setBusy] = useState(false)
   const [dirty, setDirty] = useState(true)
+  const operationRunning = useRef(false)
 
   const pickerWindow = window as DirectoryPickerWindow
   const supported = typeof pickerWindow.showDirectoryPicker === 'function'
 
+  useEffect(() => {
+    if (!dirty) return
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [dirty])
+
   async function runOperation(operation: () => Promise<void>) {
+    if (operationRunning.current) return
+
+    operationRunning.current = true
     setBusy(true)
 
     try {
@@ -96,6 +97,7 @@ function App() {
     } catch (error) {
       setMessage(getErrorMessage(error))
     } finally {
+      operationRunning.current = false
       setBusy(false)
     }
   }
@@ -109,32 +111,71 @@ function App() {
     }
 
     const selected = await picker.call(window, { mode: 'readwrite' })
+
     setDirectory(selected)
     setDirty(true)
-    setMessage(`保存先「${selected.name}」を選択しました。`)
+    setMessage(
+      `保存先「${selected.name}」を選択しました。既存の書類は「読み込む」で開けます。`,
+    )
   }
 
-  async function saveProfile() {
+  async function saveApplication() {
     if (!directory) return
+
+    // 上書きする前に、既存ファイルの有無を確認する。
+    let exists = false
+
+    try {
+      await directory.getFileHandle(fileName)
+      exists = true
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'NotFoundError')) {
+        throw error
+      }
+    }
+
+    if (
+      exists &&
+      !window.confirm(`${fileName}を現在の内容で上書きしますか？`)
+    ) {
+      setMessage('保存をキャンセルしました。')
+      return
+    }
+
+    const savedApplication: ApplicationDocument = {
+      ...application,
+      updatedAt: new Date().toISOString(),
+    }
 
     const handle = await directory.getFileHandle(fileName, {
       create: true,
     })
-
     const writable = await handle.createWritable()
-    await writable.write(JSON.stringify(profile, null, 2))
-    await writable.close()
 
+    try {
+      await writable.write(JSON.stringify(savedApplication, null, 2))
+      await writable.close()
+    } catch (error) {
+      // 書き込み途中で失敗した場合は中止を試みる。
+      try {
+        await writable.abort()
+      } catch {
+        // 既に閉じている場合などは、元のエラーを表示する。
+      }
+      throw error
+    }
+
+    setApplication(savedApplication)
     setDirty(false)
     setMessage(`${fileName}を保存しました。`)
   }
 
-  async function loadProfile() {
+  async function loadApplication() {
     if (!directory) return
 
     if (
       dirty &&
-      !window.confirm('現在の入力内容を、保存済みデータに置き換えますか？')
+      !window.confirm('現在の入力内容を、保存済みの書類に置き換えますか？')
     ) {
       setMessage('読込をキャンセルしました。')
       return
@@ -144,27 +185,30 @@ function App() {
     const file = await handle.getFile()
     const data: unknown = JSON.parse(await file.text())
 
-    if (!isProfile(data)) {
+    if (!isApplicationDocument(data)) {
       throw new Error(
-        '対応していないデータ形式です。入力内容は保持しています。',
+        '対応していない書類データです。入力内容は保持しています。',
       )
     }
 
-    setProfile(data)
+    setApplication(data)
     setDirty(false)
     setMessage(`${fileName}を読み込みました。`)
   }
 
-  function updateField(field: 'name' | 'summary', value: string) {
-    setProfile((current) => ({ ...current, [field]: value }))
+  function editApplication(
+    update: (current: ApplicationDocument) => ApplicationDocument,
+  ) {
+    if (operationRunning.current) return
+
+    setApplication(update)
     setDirty(true)
-    setMessage('入力内容を変更しました。保存してください。')
+    setMessage('書類を変更しました。保存してください。')
   }
 
   return (
     <main>
-      <h1>書類データの保存確認</h1>
-      <p>架空の名前・職務要約を使って保存と読込を確認します。</p>
+      <h1>履歴書・職務経歴書の作成</h1>
 
       {!supported && (
         <p role="alert">
@@ -174,94 +218,160 @@ function App() {
       )}
 
       <fieldset disabled={busy}>
-        <legend>保存先</legend>
-        <button
-          type="button"
-          disabled={!supported}
-          onClick={() => void runOperation(selectDirectory)}
-        >
-          保存フォルダを選択
-        </button>
-        <p>選択中のフォルダ：{directory?.name ?? '未選択'}</p>
+        <legend>保存・読込</legend>
+
+        <div className="actions">
+          <button
+            type="button"
+            disabled={!supported}
+            onClick={() => void runOperation(selectDirectory)}
+          >
+            保存フォルダを選択
+          </button>
+
+          <button
+            type="button"
+            disabled={!directory}
+            onClick={() => void runOperation(saveApplication)}
+          >
+            保存する
+          </button>
+
+          <button
+            type="button"
+            disabled={!directory}
+            onClick={() => void runOperation(loadApplication)}
+          >
+            読み込む
+          </button>
+        </div>
+
+        <p>保存先：{directory?.name ?? '未選択'}</p>
+        <p>{dirty ? '未保存の変更があります' : '保存済みデータと一致しています'}</p>
       </fieldset>
 
       <fieldset disabled={busy}>
-        <legend>プロフィール</legend>
+        <legend>応募先と基本情報</legend>
 
-        <label htmlFor="name">名前</label>
+        <label htmlFor="companyName">応募先企業</label>
         <input
-          id="name"
-          value={profile.name}
-          onChange={(event) => updateField('name', event.target.value)}
+          id="companyName"
+          value={application.companyName}
+          onChange={(event) => {
+            const value = event.target.value
+            editApplication((current) => ({
+              ...current,
+              companyName: value,
+            }))
+          }}
+        />
+
+        <label htmlFor="fullName">氏名</label>
+        <input
+          id="fullName"
+          value={application.profile.fullName}
+          onChange={(event) => {
+            const value = event.target.value
+            editApplication((current) => ({
+              ...current,
+              profile: {
+                ...current.profile,
+                fullName: value,
+              },
+            }))
+          }}
+        />
+
+        <label htmlFor="documentDate">書類の日付</label>
+        <input
+          id="documentDate"
+          type="date"
+          value={application.documentDate}
+          onChange={(event) => {
+            const value = event.target.value
+            editApplication((current) => ({
+              ...current,
+              documentDate: value,
+            }))
+          }}
         />
 
         <label htmlFor="summary">職務要約</label>
         <textarea
           id="summary"
           rows={5}
-          value={profile.summary}
-          onChange={(event) => updateField('summary', event.target.value)}
+          value={application.careerHistory.summary}
+          onChange={(event) => {
+            const value = event.target.value
+            editApplication((current) => ({
+              ...current,
+              careerHistory: {
+                ...current.careerHistory,
+                summary: value,
+              },
+            }))
+          }}
         />
 
-        <p>{dirty ? '未保存の入力内容があります' : '保存済みデータと一致しています'}</p>
-
-        <div className="actions">
-          <button
-            type="button"
-            disabled={!directory}
-            onClick={() => void runOperation(saveProfile)}
-          >
-            JSONを保存
-          </button>
-          <button
-            type="button"
-            disabled={!directory}
-            onClick={() => void runOperation(loadProfile)}
-          >
-            JSONを読み込む
-          </button>
-        </div>
+        <label htmlFor="motivation">履歴書の志望動機</label>
+        <textarea
+          id="motivation"
+          rows={5}
+          value={application.resume.motivation}
+          onChange={(event) => {
+            const value = event.target.value
+            editApplication((current) => ({
+              ...current,
+              resume: {
+                ...current.resume,
+                motivation: value,
+              },
+            }))
+          }}
+        />
       </fieldset>
 
       <p role="status">{busy ? '処理中です…' : message}</p>
 
-      <div className="actions">
-        <button
-          type="button"
-          onClick={() => setPreviewType('career')}
-          aria-pressed={previewType === 'career'}
-        >
-          職務経歴書を表示
-        </button>
+      <fieldset disabled={busy}>
+        <legend>プレビュー・印刷</legend>
 
-        <button
-          type="button"
-          onClick={() => setPreviewType('resume')}
-          aria-pressed={previewType === 'resume'}
-        >
-          履歴書を表示
-        </button>
+        <div className="actions">
+          <button
+            type="button"
+            onClick={() => setPreviewType('career')}
+            aria-pressed={previewType === 'career'}
+          >
+            職務経歴書を表示
+          </button>
 
-        <button type="button" onClick={() => window.print()}>
-          表示中の書類を印刷・PDF保存
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setPreviewType('resume')}
+            aria-pressed={previewType === 'resume'}
+          >
+            履歴書を表示
+          </button>
+
+          <button type="button" onClick={() => window.print()}>
+            表示中の書類を印刷・PDF保存
+          </button>
+        </div>
+      </fieldset>
 
       {previewType === 'career' ? (
         <CareerPreview
-          fullName="山田 太郎（架空）"
-          documentDate="2026-11-18"
-          content={sampleCareer}
+          fullName={application.profile.fullName}
+          documentDate={application.documentDate}
+          content={application.careerHistory}
         />
       ) : (
         <ResumePreview
-          profile={sampleProfile}
-          content={sampleResume}
-          documentDate="2026-11-18"
+          profile={application.profile}
+          content={application.resume}
+          documentDate={application.documentDate}
         />
       )}
     </main>
   )
 }
-
-export default App
