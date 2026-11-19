@@ -3,7 +3,10 @@ import type { ApplicationDocument } from './types/documents'
 import { createSampleApplication } from './data/createSampleApplication'
 import { isApplicationDocument } from './utils/validateApplication'
 import CareerPreview from './components/CareerPreview'
+import { CareerLayoutEditor } from './components/CareerLayoutEditor'
 import ResumePreview from './components/ResumePreview'
+import ResumeEditor from './components/ResumeEditor'
+import { CareerEditor } from './components/CareerEditor'
 
 type WritableFile = {
   write: (data: string) => Promise<void>
@@ -250,86 +253,23 @@ export default function App() {
         <p>{dirty ? '未保存の変更があります' : '保存済みデータと一致しています'}</p>
       </fieldset>
 
-      <fieldset disabled={busy}>
-        <legend>応募先と基本情報</legend>
+      <ResumeEditor
+        application={application}
+        disabled={busy}
+        onChange={editApplication}
+      />
 
-        <label htmlFor="companyName">応募先企業</label>
-        <input
-          id="companyName"
-          value={application.companyName}
-          onChange={(event) => {
-            const value = event.target.value
-            editApplication((current) => ({
-              ...current,
-              companyName: value,
-            }))
-          }}
-        />
+      <CareerEditor
+        application={application}
+        disabled={busy}
+        onChange={editApplication}
+      />
 
-        <label htmlFor="fullName">氏名</label>
-        <input
-          id="fullName"
-          value={application.profile.fullName}
-          onChange={(event) => {
-            const value = event.target.value
-            editApplication((current) => ({
-              ...current,
-              profile: {
-                ...current.profile,
-                fullName: value,
-              },
-            }))
-          }}
-        />
-
-        <label htmlFor="documentDate">書類の日付</label>
-        <input
-          id="documentDate"
-          type="date"
-          value={application.documentDate}
-          onChange={(event) => {
-            const value = event.target.value
-            editApplication((current) => ({
-              ...current,
-              documentDate: value,
-            }))
-          }}
-        />
-
-        <label htmlFor="summary">職務要約</label>
-        <textarea
-          id="summary"
-          rows={5}
-          value={application.careerHistory.summary}
-          onChange={(event) => {
-            const value = event.target.value
-            editApplication((current) => ({
-              ...current,
-              careerHistory: {
-                ...current.careerHistory,
-                summary: value,
-              },
-            }))
-          }}
-        />
-
-        <label htmlFor="motivation">履歴書の志望動機</label>
-        <textarea
-          id="motivation"
-          rows={5}
-          value={application.resume.motivation}
-          onChange={(event) => {
-            const value = event.target.value
-            editApplication((current) => ({
-              ...current,
-              resume: {
-                ...current.resume,
-                motivation: value,
-              },
-            }))
-          }}
-        />
-      </fieldset>
+      <CareerLayoutEditor
+        application={application}
+        disabled={busy}
+        onChange={editApplication}
+      />
 
       <p role="status">{busy ? '処理中です…' : message}</p>
 
@@ -364,6 +304,7 @@ export default function App() {
           fullName={application.profile.fullName}
           documentDate={application.documentDate}
           content={application.careerHistory}
+          layout={application.layout}
         />
       ) : (
         <ResumePreview

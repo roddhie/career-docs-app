@@ -134,3 +134,27 @@
     widows: 2;
   }
 }
+
+/* 通常画面では、指定した改ページ位置を点線で示す */
+@media screen {
+  .career-document .career-page-break {
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 2px dashed #64748b;
+  }
+
+  .career-document .career-page-break::before {
+    content: "ここで改ページ";
+    display: block;
+    margin-bottom: 8px;
+    color: #475569;
+    font-size: 12px;
+  }
+}
+
+/* PDF・印刷時に実際の改ページを行う */
+@media print {
+  .career-document .career-page-break {
+    break-before: page;
+  }
+}
