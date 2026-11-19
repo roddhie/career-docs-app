@@ -99,3 +99,84 @@ button:disabled {
   grid-template-columns: 140px 100px;
   gap: 12px;
 }
+
+.editor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.editor-tabs button {
+  flex: 1 1 140px;
+  background: white;
+  color: #1d4ed8;
+}
+
+.editor-tabs button[aria-pressed="true"] {
+  background: #1d4ed8;
+  color: white;
+  font-weight: bold;
+}
+
+.editor-tabs button:focus-visible {
+  outline: 3px solid #172033;
+  outline-offset: 3px;
+}
+
+.preview-actions button[aria-pressed="false"] {
+  background: white;
+  color: #1d4ed8;
+}
+
+@media screen {
+  /* 長い入力画面でも、タブを切り替えやすくする */
+  .editor-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f5f7fa;
+    border-bottom: 1px solid #cbd5e1;
+  }
+
+  /* 編集中は、印刷用の書類を画面に表示しない */
+  main:not([data-active-tab="preview"]) > .career-document,
+  main:not([data-active-tab="preview"]) > .resume-document {
+    display: none;
+  }
+}
+
+@media print {
+  .editor-tabs {
+    display: none !important;
+  }
+}
+
+.document-check {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border: 1px solid;
+  border-radius: 6px;
+}
+
+.document-check h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.document-check ul {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.document-check-error {
+  border-color: #b91c1c;
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+
+.document-check-warning {
+  border-color: #a16207;
+  background: #fffbeb;
+  color: #713f12;
+}

@@ -8,6 +8,7 @@ import type {
 type ResumeEditorProps = {
   application: ApplicationDocument
   disabled: boolean
+  section: 'resume' | 'basic'
   onChange: (
     update: (current: ApplicationDocument) => ApplicationDocument,
   ) => void
@@ -214,6 +215,7 @@ function EntryEditor({
 export default function ResumeEditor({
   application,
   disabled,
+  section,
   onChange,
 }: ResumeEditorProps) {
   const profile = application.profile
@@ -231,8 +233,12 @@ export default function ResumeEditor({
 
   return (
     <fieldset disabled={disabled}>
-      <legend>応募先・履歴書の編集</legend>
+      <legend>
+        {section === 'basic' ? '応募先・基本情報' : '履歴書の編集'}
+      </legend>
 
+      {section === 'basic' && (
+        <>
       <label>
         応募先企業
         <input
@@ -310,13 +316,16 @@ export default function ResumeEditor({
           }
         />
       )}
+        </>
+      )}
 
+      {section === 'resume' && (
+        <>
       <p>
         学歴・職歴は合計19行まで入力できます。
         「学歴」「職歴」「以上」は印刷時に自動で追加されます。
         現在 {historyCount} / 19行です。
       </p>
-
       {historyCount > 19 && (
         <p role="alert">学歴・職歴の行数を19行以内に調整してください。</p>
       )}
@@ -382,6 +391,8 @@ export default function ResumeEditor({
         />
       </label>
 
+        </>
+      )}
     </fieldset>
   )
 }

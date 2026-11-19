@@ -1,75 +1,113 @@
-# React + TypeScript + Vite
+# 履歴書・職務経歴書作成アプリ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ブラウザで履歴書・職務経歴書を編集し、ローカルフォルダへ保存するアプリです。
+文書編集ソフトでのレイアウト調整の負担を減らし、応募先ごとに書類を管理するために制作しています。
 
-Currently, two official plugins are available:
+## 主な機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 基本情報・履歴書・職務経歴書・プレビューの画面切り替え
+- 履歴書の学歴・職歴・資格などの編集
+- 職務経歴書の職務要約・技術・職歴・プロジェクト・自己PRの編集
+- 行の追加・削除・並べ替え
+- 職務経歴書の項目順序・改ページ位置の指定
+- 企業別書類の保存・読込・複製
+- 共通プロフィールの保存と、それを使った新規作成
+- 日付・年月・行数などの入力チェック
+- Chromeの印刷機能によるPDF保存
 
-## React Compiler
+顔写真の選択・保存・表示機能は未実装です。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 使用技術
 
-## Expanding the ESLint configuration
+React / TypeScript / Vite / File System Access API
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+バックエンド・データベース・認証は使用していません。
+書類データは、利用者が選択したローカルフォルダに保存します。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 動作確認環境
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Windows + Google Chrome
+- Node.js v24.22.3
+- npm 11.19.1
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+上記は開発者の確認環境です。その他の環境は未確認です。
 
+## 起動方法
+
+1. ソースコードをダウンロードして展開する。
+2. Node.jsとnpmを用意する。
+3. package.jsonがあるフォルダをPowerShellで開く。
+4. 以下を実行する。
+
+```powershell
+npm.cmd ci
+npm.cmd run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+ターミナルに表示されたローカルURLをChromeで開いてください。
+終了するときは、開発サーバーを起動したターミナルで Ctrl + C を押します。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+ビルド確認：
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm.cmd run build
 ```
+
+## 使い方
+
+1. リポジトリ外に、個人データを保存するフォルダを用意する。
+2. アプリで「保存フォルダを選択」を押す。
+3. 各タブで書類を編集し、「編集中の書類を保存」を押す。
+4. 保存済み書類は一覧から選び、「選択した書類を読み込む」で開く。
+5. 別企業向けに本文も再利用する場合は「別企業用に複製」を使う。
+6. 基本情報などだけを再利用する場合は、共通プロフィールを保存し、
+   「共通プロフィールから新規作成」を使う。
+
+複製・新規作成した書類は、保存ボタンを押すまでファイルに保存されません。
+再起動・リロード後は、保存フォルダを選び直して書類を読み込んでください。
+
+## 保存ファイル
+
+- application-<書類ID>.json：企業別の書類
+- profile.json：共通プロフィール
+- application.json：初期の保存形式。引き続き読込可能
+
+共通プロフィールを更新しても、既存の企業別書類は自動変更されません。
+企業別書類の複製には志望動機なども含まれるため、応募先に合わせて確認してください。
+
+## PDF出力
+
+「プレビュー」で履歴書または職務経歴書を選び、
+「表示中の書類を印刷・PDF保存」を押してください。
+
+Chromeの印刷画面で以下を確認します。
+
+- 保存先：PDFに保存
+- 用紙：A4
+- 倍率：100%
+- ヘッダーとフッター：オフ
+
+PDFの保存先は印刷画面で指定します。
+JSONの保存先とは別の操作です。
+
+履歴書は厚生労働省の履歴書様式例を参考にしたA4・2ページ構成です。
+公式ファイルそのものではなく、HTMLとCSSで作成したテンプレートです。
+文章量によってページ数が増えるため、提出前に必ずPDFを確認してください。
+
+## 個人データの管理
+
+個人情報を含むJSON・顔写真・提出用PDFは、
+ソースコードのフォルダ外で管理してください。
+
+ソースコードに含めるサンプルは架空の情報のみとします。
+個人データのバックアップは利用者が行ってください。
+
+## 現在の制約
+
+- 顔写真機能は未実装です。
+- 自動保存には対応していません。
+- 同じ書類を複数のタブやウィンドウで同時編集する運用には対応していません。
+- 履歴書の学歴・職歴は合計19行、免許・資格は6行までです。
+- 内容の正しさや、文章量によるページ超過は自動判定しません。
+- 印刷ボタンのエラーチェックは、ブラウザの Ctrl + P には適用されません。
+- クラウド同期やWebサービスとしての公開には対応していません。

@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local application data
+application.json
+application-*.json
+profile.json
+storage-test.json
+
+# Personal documents and photos
+/private-data/
+/photos/
+*.pdf
+
+# Local environment settings
+.env
+.env.*
+!.env.example
