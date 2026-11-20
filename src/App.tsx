@@ -758,68 +758,70 @@ function removePhoto() {
         />
       )}
 
-      <fieldset disabled={busy}>
-        <legend>顔写真</legend>
+      {activeTab === 'basic' && (
+        <fieldset disabled={busy}>
+          <legend>顔写真</legend>
 
-        <p>
-          JPEG・PNG形式、5MB以下の画像を選択してください。
-          写真は選択中の保存フォルダへコピーされます。
-        </p>
+          <p>
+            JPEG・PNG形式、5MB以下の画像を選択してください。
+            写真は選択中の保存フォルダへコピーされます。
+          </p>
 
-        <label>
-          写真を選択
-          <input
-            type="file"
-            accept="image/jpeg,image/png"
-            disabled={!directory}
-            onChange={(event) => {
-              const file = event.currentTarget.files?.[0]
+          <label>
+            写真を選択
+            <input
+              type="file"
+              accept="image/jpeg,image/png"
+              disabled={!directory}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0]
 
-              // 同じファイルを再選択できるようにします。
-              event.currentTarget.value = ''
+                // 同じファイルを再選択できるようにします。
+                event.currentTarget.value = ''
 
-              if (file) {
-                void runOperation(() => selectPhoto(file))
-              }
-            }}
-          />
-        </label>
-
-        {!directory && <p>先にデータ保存フォルダを選択してください。</p>}
-
-        {photoLoading && <p role="status">写真を読み込んでいます…</p>}
-
-        {photoError && <p role="alert">{photoError}</p>}
-
-        {photoUrl && (
-          <div>
-            <img
-              src={photoUrl}
-              alt="選択した証明写真"
-              style={{
-                display: 'block',
-                width: '120px',
-                height: '160px',
-                objectFit: 'contain',
-                margin: '12px 0',
+                if (file) {
+                  void runOperation(() => selectPhoto(file))
+                }
               }}
             />
-          </div>
-        )}
+          </label>
 
-        <button
-          type="button"
-          disabled={!application.profile.photoPath}
-          onClick={removePhoto}
-        >
-          この書類の写真を解除
-        </button>
+          {!directory && <p>先にデータ保存フォルダを選択してください。</p>}
 
-        <p>
-          選択・解除後は「編集中の書類を保存」を押してください。
-          解除しても、他の書類で使用できるよう画像ファイルは残します。
-        </p>
-      </fieldset>
+          {photoLoading && <p role="status">写真を読み込んでいます…</p>}
+
+          {photoError && <p role="alert">{photoError}</p>}
+
+          {photoUrl && (
+            <div>
+              <img
+                src={photoUrl}
+                alt="選択した証明写真"
+                style={{
+                  display: 'block',
+                  width: '120px',
+                  height: '160px',
+                  objectFit: 'contain',
+                  margin: '12px 0',
+                }}
+              />
+            </div>
+          )}
+
+          <button
+            type="button"
+            disabled={!application.profile.photoPath}
+            onClick={removePhoto}
+          >
+            この書類の写真を解除
+          </button>
+
+          <p>
+            選択・解除後は「編集中の書類を保存」を押してください。
+            解除しても、他の書類で使用できるよう画像ファイルは残します。
+          </p>
+        </fieldset>
+      )}
 
       {activeTab === 'career' && (
         <>
