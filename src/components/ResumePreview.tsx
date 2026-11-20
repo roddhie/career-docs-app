@@ -138,15 +138,22 @@ export default function ResumePreview({
         </div>
 
         <div className="resume-address">
-          <div className="resume-field">
+          <div className="resume-address-cell resume-address-top">
             <span>ふりがな</span>
             <p>{profile.currentAddress.addressKana}</p>
+          </div>
+
+          <div className="resume-address-cell resume-address-top resume-address-right">
+            <span>電話</span>
+            <p>{profile.phone}</p>
+          </div>
+
+          <div className="resume-address-cell">
             <span>現住所　〒{profile.currentAddress.postalCode}</span>
             <p>{profile.currentAddress.address}</p>
           </div>
-          <div className="resume-field">
-            <span>電話</span>
-            <p>{profile.phone}</p>
+
+          <div className="resume-address-cell resume-address-right">
             <span>メール</span>
             <p>{profile.email}</p>
           </div>
