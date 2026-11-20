@@ -192,3 +192,45 @@
   min-height: 0;
   object-fit: contain;
 }
+
+/* 両ページの本文領域を同じ高さにする */
+.resume-page-body {
+  height: 258mm;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 内容が多い場合でも、欄や文字を押しつぶさない */
+.resume-page-body > * {
+  flex-shrink: 0;
+}
+
+/* 1ページ目の学歴・職歴表を本文の下端へ配置 */
+.resume-page-body-first > .resume-table {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+/* 残りの高さを志望動機欄に割り当てる */
+.resume-page-body-second > .resume-motivation {
+  flex-grow: 1;
+  flex-shrink: 0;
+  min-height: 50mm;
+}
+
+/* 本人希望欄は高さを保ち、志望動機欄との間隔を固定する */
+.resume-page-body-second > .resume-requests {
+  flex-grow: 0;
+  flex-shrink: 0;
+  min-height: 45mm;
+  margin-top: 5mm;
+  margin-bottom: 0;
+}
+
+/* 画面上も印刷時と同じ本文幅にする */
+@media screen {
+  .resume-page {
+    box-sizing: content-box;
+    width: 180mm;
+  }
+}

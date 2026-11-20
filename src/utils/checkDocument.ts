@@ -158,12 +158,12 @@ export function checkDocument(
       warnings.push('別の連絡先を選択していますが、住所が未入力です。')
     }
 
-    if (profile.education.length + profile.employment.length > 19) {
-      errors.push('履歴書の学歴・職歴は合計19行以内にしてください。')
+    if (profile.education.length + profile.employment.length > 21) {
+      errors.push('履歴書の学歴・職歴は合計21行以内にしてください。')
     }
 
-    if (profile.qualifications.length > 6) {
-      errors.push('履歴書の免許・資格は6行以内にしてください。')
+    if (profile.qualifications.length > 8) {
+      errors.push('履歴書の免許・資格は8行以内にしてください。')
     }
 
     checkEntries(profile.education, '学歴')

@@ -86,12 +86,12 @@ export default function ResumePreview({
   ]
 
   // 行を切り捨てて印刷することを防ぐ。
-  if (history.length > 22 || profile.qualifications.length > 6) {
+  if (history.length > 24 || profile.qualifications.length > 8) {
     return (
       <article className="resume-document" role="alert">
         <p>
           履歴書の行数上限を超えています。
-          学歴・職歴は見出しを含め22行、免許・資格は6行以内にしてください。
+          学歴・職歴は見出しを含め24行、免許・資格は8行以内にしてください。
         </p>
       </article>
     )
@@ -104,101 +104,106 @@ export default function ResumePreview({
   return (
     <article className="resume-document">
       <section className="resume-page">
-        <header className="resume-header">
-          <h1>履歴書</h1>
-          <p>{formatDate(documentDate)}現在</p>
-        </header>
+        <div className="resume-page-body resume-page-body-first">
+          <header className="resume-header">
+            <h1>履歴書</h1>
+            <p>{formatDate(documentDate)}現在</p>
+          </header>
 
-        <div className="resume-personal">
-          <div className="resume-name-area">
-            <div className="resume-field">
+          <div className="resume-personal">
+            <div className="resume-name-area">
+              <div className="resume-field">
+                <span>ふりがな</span>
+                <p>{profile.fullNameKana}</p>
+              </div>
+              <div className="resume-field">
+                <span>氏名</span>
+                <p className="resume-name">{profile.fullName}</p>
+              </div>
+              <div className="resume-field">
+                <p>
+                  {formatDate(profile.birthDate)}生
+                  （満{getAge(profile.birthDate, documentDate)}歳）
+                </p>
+                <p>性別（任意）：{profile.gender}</p>
+              </div>
+            </div>
+
+            <div className={`resume-photo${photoUrl ? ' has-photo' : ''}`}>
+              {photoUrl ? (
+                <img src={photoUrl} alt="証明写真" />
+              ) : (
+                '写真貼付欄'
+              )}
+            </div>
+          </div>
+
+          <div className="resume-address">
+            <div className="resume-address-cell resume-address-top">
               <span>ふりがな</span>
-              <p>{profile.fullNameKana}</p>
+              <p>{profile.currentAddress.addressKana}</p>
             </div>
-            <div className="resume-field">
-              <span>氏名</span>
-              <p className="resume-name">{profile.fullName}</p>
+
+            <div className="resume-address-cell resume-address-top resume-address-right">
+              <span>電話</span>
+              <p>{profile.phone}</p>
             </div>
-            <div className="resume-field">
-              <p>
-                {formatDate(profile.birthDate)}生
-                （満{getAge(profile.birthDate, documentDate)}歳）
-              </p>
-              <p>性別（任意）：{profile.gender}</p>
+
+            <div className="resume-address-cell">
+              <span>現住所　〒{profile.currentAddress.postalCode}</span>
+              <p>{profile.currentAddress.address}</p>
+            </div>
+
+            <div className="resume-address-cell resume-address-right">
+              <span>メール</span>
+              <p>{profile.email}</p>
             </div>
           </div>
 
-          <div className={`resume-photo${photoUrl ? ' has-photo' : ''}`}>
-            {photoUrl ? (
-              <img src={photoUrl} alt="証明写真" />
-            ) : (
-              '写真貼付欄'
-            )}
+          <div className="resume-field resume-contact">
+            <span>連絡先（現住所以外に連絡を希望する場合）</span>
+            <p>
+              {!profile.useCurrentAddressForContact &&
+                profile.contactAddress.addressKana}
+            </p>
+            <p>{contactAddress}</p>
           </div>
+
+          <HistoryTable
+            title="学歴・職歴（各別にまとめて書く）"
+            entries={history.slice(0, 15)}
+            rowCount={15}
+          />
         </div>
 
-        <div className="resume-address">
-          <div className="resume-address-cell resume-address-top">
-            <span>ふりがな</span>
-            <p>{profile.currentAddress.addressKana}</p>
-          </div>
-
-          <div className="resume-address-cell resume-address-top resume-address-right">
-            <span>電話</span>
-            <p>{profile.phone}</p>
-          </div>
-
-          <div className="resume-address-cell">
-            <span>現住所　〒{profile.currentAddress.postalCode}</span>
-            <p>{profile.currentAddress.address}</p>
-          </div>
-
-          <div className="resume-address-cell resume-address-right">
-            <span>メール</span>
-            <p>{profile.email}</p>
-          </div>
-        </div>
-
-        <div className="resume-field resume-contact">
-          <span>連絡先（現住所以外に連絡を希望する場合）</span>
-          <p>
-            {!profile.useCurrentAddressForContact &&
-              profile.contactAddress.addressKana}
-          </p>
-          <p>{contactAddress}</p>
-        </div>
-
-        <HistoryTable
-          title="学歴・職歴（各別にまとめて書く）"
-          entries={history.slice(0, 15)}
-          rowCount={15}
-        />
         <p className="resume-note">※性別欄の記載は任意です。</p>
       </section>
 
       <section className="resume-page">
-        <HistoryTable
-          title="学歴・職歴（各別にまとめて書く）"
-          entries={history.slice(15)}
-          rowCount={7}
-        />
+        <div className="resume-page-body">
+          <HistoryTable
+            title="学歴・職歴（各別にまとめて書く）"
+            entries={history.slice(15)}
+            rowCount={9}
+          />
 
-        <HistoryTable
-          title="免許・資格"
-          entries={profile.qualifications}
-          rowCount={6}
-        />
+          <HistoryTable
+            title="免許・資格"
+            entries={profile.qualifications}
+            rowCount={8}
+          />
 
-        <div className="resume-text-box resume-motivation">
-          <span>志望の動機、特技、好きな学科、アピールポイントなど</span>
-          <p>{content.motivation}</p>
-        </div>
+          <div className="resume-text-box resume-motivation">
+            <span>志望の動機、特技、好きな学科、アピールポイントなど</span>
+            <p>{content.motivation}</p>
+          </div>
 
-        <div className="resume-text-box resume-requests">
-          <span>
-            本人希望記入欄（給料・職種・勤務時間・勤務地などの希望）
-          </span>
-          <p>{content.personalRequests}</p>
+          <div className="resume-text-box resume-requests">
+            <span>
+              本人希望記入欄（給料・職種・勤務時間・勤務地などの希望）
+            </span>
+            <p>{content.personalRequests}</p>
+          </div>
         </div>
       </section>
     </article>

@@ -322,25 +322,25 @@ export default function ResumeEditor({
       {section === 'resume' && (
         <>
       <p>
-        学歴・職歴は合計19行まで入力できます。
+        学歴・職歴は合計21行まで入力できます。
         「学歴」「職歴」「以上」は印刷時に自動で追加されます。
-        現在 {historyCount} / 19行です。
+        現在 {historyCount} / 21行です。
       </p>
-      {historyCount > 19 && (
-        <p role="alert">学歴・職歴の行数を19行以内に調整してください。</p>
+      {historyCount > 21 && (
+        <p role="alert">学歴・職歴の行数を21行以内に調整してください。</p>
       )}
 
       <EntryEditor
         title="学歴"
         entries={profile.education}
-        maxRows={19 - profile.employment.length}
+        maxRows={21 - profile.employment.length}
         onChange={(entries) => updateProfile({ education: entries })}
       />
 
       <EntryEditor
         title="職歴"
         entries={profile.employment}
-        maxRows={19 - profile.education.length}
+        maxRows={21 - profile.education.length}
         onChange={(entries) => updateProfile({ employment: entries })}
       />
 
@@ -351,12 +351,12 @@ export default function ResumeEditor({
       <EntryEditor
         title="免許・資格"
         entries={profile.qualifications}
-        maxRows={6}
+        maxRows={8}
         onChange={(entries) => updateProfile({ qualifications: entries })}
       />
 
-      {profile.qualifications.length > 6 && (
-        <p role="alert">免許・資格の行数を6行以内に調整してください。</p>
+      {profile.qualifications.length > 8 && (
+        <p role="alert">免許・資格の行数を8行以内に調整してください。</p>
       )}
 
       <h3>志望動機・本人希望</h3>
