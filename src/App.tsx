@@ -13,9 +13,11 @@ import { CareerEditor } from './components/CareerEditor'
 import { createApplicationFromProfile } from './data/createApplicationFromProfile'
 import { isProfileFile } from './utils/validateProfileFile'
 import { checkDocument } from './utils/checkDocument'
+import { savePhoto, loadPhoto } from './utils/photoStorage'
+import { useResumePhoto } from './hooks/useResumePhoto'
 
 type WritableFile = {
-  write: (data: string) => Promise<void>
+  write: (data: string | Blob) => Promise<void>
   close: () => Promise<void>
   abort: () => Promise<void>
 }
@@ -30,10 +32,17 @@ type LocalFileHandle = {
 type LocalDirectoryHandle = {
   kind: 'directory'
   name: string
+
+  getDirectoryHandle: (
+    name: string,
+    options?: { create?: boolean },
+  ) => Promise<LocalDirectoryHandle>
+
   getFileHandle: (
     name: string,
     options?: { create?: boolean },
   ) => Promise<LocalFileHandle>
+
   values: () => AsyncIterableIterator<
     LocalFileHandle | LocalDirectoryHandle
   >
@@ -142,6 +151,15 @@ export default function App() {
   const [dirty, setDirty] = useState(true)
   const operationRunning = useRef(false)
 
+  const { photoUrl, photoError, photoLoading } = useResumePhoto(
+  directory,
+  application.profile.photoPath,
+)
+
+const photoNotReady = Boolean(
+  application.profile.photoPath && !photoUrl,
+)
+
   const pickerWindow = window as DirectoryPickerWindow
   const supported = typeof pickerWindow.showDirectoryPicker === 'function'
 
@@ -220,6 +238,10 @@ export default function App() {
   async function saveApplication() {
     if (!directory) return
 
+    if (application.profile.photoPath) {
+      await loadPhoto(directory, application.profile.photoPath)
+    }
+
     // 外部から読み込んだIDに、パスとして使えない文字が
     // 含まれている場合は新しいIDを割り当てる。
     const documentId = /^[a-zA-Z0-9-]+$/.test(application.id)
@@ -294,6 +316,38 @@ export default function App() {
       )
     }
   }
+
+  async function selectPhoto(file: File) {
+  if (!directory) {
+    throw new Error('先にデータ保存フォルダを選択してください。')
+  }
+
+  const photoPath = await savePhoto(directory, file)
+
+  setApplication((current) => ({
+    ...current,
+    profile: {
+      ...current.profile,
+      photoPath,
+    },
+  }))
+
+  setDirty(true)
+  setMessage(
+    '写真を保存フォルダへコピーしました。' +
+      '書類との対応を保存するため「編集中の書類を保存」を押してください。',
+  )
+}
+
+function removePhoto() {
+  editApplication((current) => ({
+    ...current,
+    profile: {
+      ...current.profile,
+      photoPath: null,
+    },
+  }))
+}
 
   async function loadApplication() {
     if (!directory || !selectedFileName) return
@@ -389,6 +443,10 @@ export default function App() {
 
     async function saveCommonProfile() {
     if (!directory) return
+
+    if (application.profile.photoPath) {
+      await loadPhoto(directory, application.profile.photoPath)
+    }
 
     const confirmed = window.confirm(
       '編集中の書類の氏名・住所・連絡先・学歴・職歴・資格などを、' +
@@ -509,6 +567,13 @@ export default function App() {
 
   function printCurrentDocument() {
     if (operationRunning.current) return
+
+    if (previewType === 'resume' && photoNotReady) {
+      setMessage(
+        '写真の読み込みが完了していません。基本情報タブで写真を確認してください。',
+      )
+      return
+    }
 
     const result = checkDocument(application, previewType)
 
@@ -693,6 +758,69 @@ export default function App() {
         />
       )}
 
+      <fieldset disabled={busy}>
+        <legend>顔写真</legend>
+
+        <p>
+          JPEG・PNG形式、5MB以下の画像を選択してください。
+          写真は選択中の保存フォルダへコピーされます。
+        </p>
+
+        <label>
+          写真を選択
+          <input
+            type="file"
+            accept="image/jpeg,image/png"
+            disabled={!directory}
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0]
+
+              // 同じファイルを再選択できるようにします。
+              event.currentTarget.value = ''
+
+              if (file) {
+                void runOperation(() => selectPhoto(file))
+              }
+            }}
+          />
+        </label>
+
+        {!directory && <p>先にデータ保存フォルダを選択してください。</p>}
+
+        {photoLoading && <p role="status">写真を読み込んでいます…</p>}
+
+        {photoError && <p role="alert">{photoError}</p>}
+
+        {photoUrl && (
+          <div>
+            <img
+              src={photoUrl}
+              alt="選択した証明写真"
+              style={{
+                display: 'block',
+                width: '120px',
+                height: '160px',
+                objectFit: 'contain',
+                margin: '12px 0',
+              }}
+            />
+          </div>
+        )}
+
+        <button
+          type="button"
+          disabled={!application.profile.photoPath}
+          onClick={removePhoto}
+        >
+          この書類の写真を解除
+        </button>
+
+        <p>
+          選択・解除後は「編集中の書類を保存」を押してください。
+          解除しても、他の書類で使用できるよう画像ファイルは残します。
+        </p>
+      </fieldset>
+
       {activeTab === 'career' && (
         <>
           <CareerEditor
@@ -713,7 +841,14 @@ export default function App() {
         <fieldset disabled={busy}>
           <legend>プレビュー・印刷</legend>
 
-                    <p>
+          {previewType === 'resume' && photoNotReady && (
+            <p role="alert">
+              {photoError ??
+                '写真を読み込んでいます。表示されてから印刷してください。'}
+            </p>
+          )}
+
+          <p>
             印刷対象：
             {previewType === 'resume' ? '履歴書' : '職務経歴書'}
             {' ／ '}
@@ -783,7 +918,10 @@ export default function App() {
 
             <button
               type="button"
-              disabled={documentCheck.errors.length > 0}
+              disabled={
+                documentCheck.errors.length > 0 ||
+                (previewType === 'resume' && photoNotReady)
+              }
               onClick={printCurrentDocument}
             >
               表示中の書類を印刷・PDF保存
@@ -804,6 +942,7 @@ export default function App() {
           profile={application.profile}
           content={application.resume}
           documentDate={application.documentDate}
+          photoUrl={photoUrl}
         />
       )}
     </main>

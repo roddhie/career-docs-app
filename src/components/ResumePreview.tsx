@@ -9,6 +9,7 @@ type ResumePreviewProps = {
   profile: PersonalProfile
   content: ResumeContent
   documentDate: string
+  photoUrl: string | null
 }
 
 type HistoryTableProps = {
@@ -74,6 +75,7 @@ export default function ResumePreview({
   profile,
   content,
   documentDate,
+  photoUrl,
 }: ResumePreviewProps) {
   const history: DatedEntry[] = [
     { id: 'heading-education', year: '', month: '', description: '学歴' },
@@ -126,7 +128,13 @@ export default function ResumePreview({
             </div>
           </div>
 
-          <div className="resume-photo">写真貼付欄</div>
+          <div className={`resume-photo${photoUrl ? ' has-photo' : ''}`}>
+            {photoUrl ? (
+              <img src={photoUrl} alt="証明写真" />
+            ) : (
+              '写真貼付欄'
+            )}
+          </div>
         </div>
 
         <div className="resume-address">
