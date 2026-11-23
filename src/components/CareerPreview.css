@@ -158,3 +158,77 @@
     break-before: page;
   }
 }
+
+/* 会社ごとのまとまり */
+.career-document .career-company {
+  margin-top: 16px;
+}
+
+.career-document .career-company > h3 {
+  padding: 6px 8px;
+  border-left: 4px solid #333;
+  background: #f1f5f9;
+}
+
+/* 職歴・プロジェクト用の表 */
+.career-document .career-detail-table {
+  margin: 0 0 12px;
+}
+
+.career-document .career-detail-table .career-label-column {
+  width: 18%;
+}
+
+.career-document .career-detail-table .career-value-column {
+  width: 32%;
+}
+
+/* 既存の技術一覧用の列幅指定を、この表では解除する */
+.career-document .career-detail-table th {
+  width: auto;
+  font-weight: normal;
+  background: #f8fafc;
+}
+
+.career-document .career-detail-table th,
+.career-document .career-detail-table td {
+  padding: 5px 8px;
+  line-height: 1.5;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.career-document .career-project > h4 {
+  margin: 12px 0 6px;
+}
+
+/* 長い内容はページをまたげるようにし、切り捨てを避ける */
+@media print {
+  .career-document .career-company,
+  .career-document .career-project,
+  .career-document .career-detail-table {
+    break-inside: auto;
+  }
+
+  .career-document .career-detail-table .career-long-row {
+    break-inside: auto;
+  }
+}
+
+/* 技術一覧：分類を広げ、その分だけ経験を狭める */
+.career-document .career-skills-table th:nth-child(1) {
+  width: 20%;
+}
+
+.career-document .career-skills-table th:nth-child(2) {
+  width: 20%;
+}
+
+.career-document .career-skills-table th:nth-child(3) {
+  width: 10%;
+}
+
+.career-document .career-skills-table th:nth-child(4) {
+  width: 50%;
+}

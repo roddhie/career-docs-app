@@ -5,6 +5,7 @@ import type {
   ProjectEntry,
   SkillEntry,
 } from '../types/documents'
+import './CareerEditor.css'
 
 type Props = {
   application: ApplicationDocument
@@ -31,8 +32,8 @@ function TextField({
   type = 'text',
   disabled = false,
 }: TextFieldProps) {
-  return (
-    <label>
+    return (
+    <label className={multiline ? 'career-field-wide' : undefined}>
       {label}
       {multiline ? (
         <textarea
@@ -393,64 +394,67 @@ export function CareerEditor({
           <fieldset key={career.id} className="entry-row">
             <legend>職歴 {careerIndex + 1}</legend>
 
-            <TextField
-              label="会社名"
-              value={career.companyName}
-              onChange={(companyName) =>
-                patchCareer(career.id, { companyName })
-              }
-            />
+            <div className="career-form-grid">
 
-            <TextField
-              label="入社年月"
-              type="month"
-              value={career.startDate}
-              onChange={(startDate) =>
-                patchCareer(career.id, { startDate })
-              }
-            />
+              <TextField
+                label="会社名"
+                value={career.companyName}
+                onChange={(companyName) =>
+                  patchCareer(career.id, { companyName })
+                }
+              />
 
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={career.ongoing}
-                onChange={(event) =>
+              <TextField
+                label="入社年月"
+                type="month"
+                value={career.startDate}
+                onChange={(startDate) =>
+                  patchCareer(career.id, { startDate })
+                }
+              />
+
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={career.ongoing}
+                  onChange={(event) =>
+                    patchCareer(career.id, {
+                      ongoing: event.target.checked,
+                    })
+                  }
+                />
+                現在も在籍している
+              </label>
+
+              <TextField
+                label="退社年月（在籍中の場合は入力不要）"
+                type="month"
+                value={career.endDate}
+                disabled={career.ongoing}
+                onChange={(endDate) =>
+                  patchCareer(career.id, { endDate })
+                }
+              />
+
+              <TextField
+                label="雇用形態"
+                value={career.employmentType}
+                onChange={(employmentType) =>
+                  patchCareer(career.id, { employmentType })
+                }
+              />
+
+              <TextField
+                label="会社の事業内容"
+                value={career.businessDescription}
+                multiline
+                onChange={(businessDescription) =>
                   patchCareer(career.id, {
-                    ongoing: event.target.checked,
+                    businessDescription,
                   })
                 }
               />
-              現在も在籍している
-            </label>
-
-            <TextField
-              label="退社年月（在籍中の場合は入力不要）"
-              type="month"
-              value={career.endDate}
-              disabled={career.ongoing}
-              onChange={(endDate) =>
-                patchCareer(career.id, { endDate })
-              }
-            />
-
-            <TextField
-              label="雇用形態"
-              value={career.employmentType}
-              onChange={(employmentType) =>
-                patchCareer(career.id, { employmentType })
-              }
-            />
-
-            <TextField
-              label="会社の事業内容"
-              value={career.businessDescription}
-              multiline
-              onChange={(businessDescription) =>
-                patchCareer(career.id, {
-                  businessDescription,
-                })
-              }
-            />
+            </div>
 
             <h4>この職歴のプロジェクト</h4>
 
@@ -460,85 +464,88 @@ export function CareerEditor({
                   プロジェクト {projectIndex + 1}
                 </legend>
 
-                <TextField
-                  label="プロジェクト名"
-                  value={project.name}
-                  onChange={(name) =>
-                    updateProject(career.id, project.id, {
-                      name,
-                    })
-                  }
-                />
+                <div className="career-form-grid">
 
-                <TextField
-                  label="開始年月"
-                  type="month"
-                  value={project.startDate}
-                  onChange={(startDate) =>
-                    updateProject(career.id, project.id, {
-                      startDate,
-                    })
-                  }
-                />
-
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={project.ongoing}
-                    onChange={(event) =>
-                      updateProject(career.id, project.id, {
-                        ongoing: event.target.checked,
-                      })
-                    }
-                  />
-                  現在も参画している
-                </label>
-
-                <TextField
-                  label="終了年月（参画中の場合は入力不要）"
-                  type="month"
-                  value={project.endDate}
-                  disabled={project.ongoing}
-                  onChange={(endDate) =>
-                    updateProject(career.id, project.id, {
-                      endDate,
-                    })
-                  }
-                />
-
-                {projectFields.map(({ key, label }) => (
                   <TextField
-                    key={key}
-                    label={label}
-                    value={project[key]}
-                    multiline
-                    onChange={(value) =>
+                    label="プロジェクト名"
+                    value={project.name}
+                    onChange={(name) =>
                       updateProject(career.id, project.id, {
-                        [key]: value,
+                        name,
                       })
                     }
                   />
-                ))}
 
-                <TextField
-                  label="担当した役割"
-                  value={project.role}
-                  onChange={(role) =>
-                    updateProject(career.id, project.id, {
-                      role,
-                    })
-                  }
-                />
+                  <TextField
+                    label="開始年月"
+                    type="month"
+                    value={project.startDate}
+                    onChange={(startDate) =>
+                      updateProject(career.id, project.id, {
+                        startDate,
+                      })
+                    }
+                  />
 
-                <TextField
-                  label="チーム規模（例：5名）"
-                  value={project.teamSize}
-                  onChange={(teamSize) =>
-                    updateProject(career.id, project.id, {
-                      teamSize,
-                    })
-                  }
-                />
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={project.ongoing}
+                      onChange={(event) =>
+                        updateProject(career.id, project.id, {
+                          ongoing: event.target.checked,
+                        })
+                      }
+                    />
+                    現在も参画している
+                  </label>
+
+                  <TextField
+                    label="終了年月（参画中の場合は入力不要）"
+                    type="month"
+                    value={project.endDate}
+                    disabled={project.ongoing}
+                    onChange={(endDate) =>
+                      updateProject(career.id, project.id, {
+                        endDate,
+                      })
+                    }
+                  />
+
+                  {projectFields.map(({ key, label }) => (
+                    <TextField
+                      key={key}
+                      label={label}
+                      value={project[key]}
+                      multiline
+                      onChange={(value) =>
+                        updateProject(career.id, project.id, {
+                          [key]: value,
+                        })
+                      }
+                    />
+                  ))}
+
+                  <TextField
+                    label="担当した役割"
+                    value={project.role}
+                    onChange={(role) =>
+                      updateProject(career.id, project.id, {
+                        role,
+                      })
+                    }
+                  />
+
+                  <TextField
+                    label="チーム規模（例：5名）"
+                    value={project.teamSize}
+                    onChange={(teamSize) =>
+                      updateProject(career.id, project.id, {
+                        teamSize,
+                      })
+                    }
+                  />
+                </div>
 
                 <RowActions
                   index={projectIndex}

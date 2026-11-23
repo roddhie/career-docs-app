@@ -50,7 +50,7 @@ export default function CareerPreview({
         return (
           <>
             <h2>活かせる経験・知識・技術</h2>
-            <table>
+            <table className="career-skills-table">
               <thead>
                 <tr>
                   <th scope="col">分類</th>
@@ -73,7 +73,7 @@ export default function CareerPreview({
           </>
         )
 
-      case 'careers':
+           case 'careers':
         return (
           <>
             <h2>職務経歴</h2>
@@ -81,25 +81,44 @@ export default function CareerPreview({
             {content.careers.map((career, index) => (
               <section
                 key={career.id}
-                className={breakClass(
-                  index > 0 &&
-                    layout.pageBreakBeforeCareerIds.includes(
-                      career.id,
-                    ),
-                )}
+                className={[
+                  'career-company',
+                  breakClass(
+                    index > 0 &&
+                      layout.pageBreakBeforeCareerIds.includes(career.id),
+                  ),
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
               >
                 <h3>{career.companyName}</h3>
 
-                <p>
-                  {formatMonth(career.startDate)}
-                  {' ～ '}
-                  {career.ongoing
-                    ? '現在'
-                    : formatMonth(career.endDate)}
-                </p>
-
-                <p>雇用形態：{career.employmentType}</p>
-                <p>事業内容：{career.businessDescription}</p>
+                <table className="career-detail-table">
+                  <colgroup>
+                    <col className="career-label-column" />
+                    <col className="career-value-column" />
+                    <col className="career-label-column" />
+                    <col className="career-value-column" />
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <th scope="row">在籍期間</th>
+                      <td>
+                        {formatMonth(career.startDate)}
+                        {' ～ '}
+                        {career.ongoing
+                          ? '現在'
+                          : formatMonth(career.endDate)}
+                      </td>
+                      <th scope="row">雇用形態</th>
+                      <td>{career.employmentType}</td>
+                    </tr>
+                    <tr className="career-long-row">
+                      <th scope="row">事業内容</th>
+                      <td colSpan={3}>{career.businessDescription}</td>
+                    </tr>
+                  </tbody>
+                </table>
 
                 {career.projects.map((project) => (
                   <section
@@ -107,9 +126,7 @@ export default function CareerPreview({
                     className={[
                       'career-project',
                       breakClass(
-                        layout.pageBreakBeforeProjectIds.includes(
-                          project.id,
-                        ),
+                        layout.pageBreakBeforeProjectIds.includes(project.id),
                       ),
                     ]
                       .filter(Boolean)
@@ -117,36 +134,53 @@ export default function CareerPreview({
                   >
                     <h4>{project.name}</h4>
 
-                    <p>
-                      {formatMonth(project.startDate)}
-                      {' ～ '}
-                      {project.ongoing
-                        ? '現在'
-                        : formatMonth(project.endDate)}
-                    </p>
+                    <table className="career-detail-table">
+                      <colgroup>
+                        <col className="career-label-column" />
+                        <col className="career-value-column" />
+                        <col className="career-label-column" />
+                        <col className="career-value-column" />
+                      </colgroup>
+                      <tbody>
+                        <tr>
+                          <th scope="row">期間</th>
+                          <td colSpan={3}>
+                            {formatMonth(project.startDate)}
+                            {' ～ '}
+                            {project.ongoing
+                              ? '現在'
+                              : formatMonth(project.endDate)}
+                          </td>
+                        </tr>
 
-                    <dl>
-                      <dt>概要</dt>
-                      <dd>{project.overview}</dd>
+                        <tr>
+                          <th scope="row">役割</th>
+                          <td>{project.role}</td>
+                          <th scope="row">チーム規模</th>
+                          <td>{project.teamSize}</td>
+                        </tr>
 
-                      <dt>担当業務</dt>
-                      <dd>{project.responsibilities}</dd>
+                        <tr className="career-long-row">
+                          <th scope="row">概要</th>
+                          <td colSpan={3}>{project.overview}</td>
+                        </tr>
 
-                      <dt>成果・工夫</dt>
-                      <dd>{project.achievements}</dd>
+                        <tr className="career-long-row">
+                          <th scope="row">担当業務</th>
+                          <td colSpan={3}>{project.responsibilities}</td>
+                        </tr>
 
-                      <dt>開発環境</dt>
-                      <dd>{project.technologies}</dd>
+                        <tr className="career-long-row">
+                          <th scope="row">成果・工夫</th>
+                          <td colSpan={3}>{project.achievements}</td>
+                        </tr>
 
-                      <dt>役割・体制</dt>
-                      <dd>
-                        {project.role}
-                        {project.role && project.teamSize
-                          ? ' ／ '
-                          : ''}
-                        {project.teamSize}
-                      </dd>
-                    </dl>
+                        <tr className="career-long-row">
+                          <th scope="row">開発環境</th>
+                          <td colSpan={3}>{project.technologies}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </section>
                 ))}
               </section>
