@@ -1,3 +1,4 @@
+import SkillsTable from './SkillsTable'
 import type {
   ApplicationDocument,
   CareerEntry,
@@ -151,13 +152,6 @@ function createCareer(): CareerEntry {
     projects: [],
   }
 }
-
-const skillFields = [
-  { key: 'category', label: '分類（例：言語、フレームワーク）' },
-  { key: 'technology', label: '技術名' },
-  { key: 'experience', label: '経験期間（例：1年）' },
-  { key: 'description', label: '対応できる内容' },
-] as const
 
 const projectFields = [
   { key: 'overview', label: 'プロジェクトの概要' },
@@ -320,7 +314,7 @@ export function CareerEditor({
   }
 
   return (
-    <fieldset disabled={disabled}>
+    <fieldset className="career-editor" disabled={disabled}>
       <legend>職務経歴書の編集</legend>
 
       <TextField
@@ -338,39 +332,26 @@ export function CareerEditor({
       <section className="entry-editor">
         <h3>技術・スキル</h3>
 
-        {content.skills.map((skill, index) => (
-          <fieldset key={skill.id} className="entry-row">
-            <legend>技術・スキル {index + 1}</legend>
-
-            {skillFields.map(({ key, label }) => (
-              <TextField
-                key={key}
-                label={label}
-                value={skill[key]}
-                multiline={key === 'description'}
-                onChange={(value) =>
-                  updateSkill(skill.id, { [key]: value })
+        <p>書類と同じ幅で編集できます。狭い画面では表を横にスクロールしてください。</p>
+        <div className="skills-editor-scroll" role="region" aria-label="技術・スキルの編集表" tabIndex={0}>
+          <SkillsTable
+            skills={content.skills}
+            onChange={updateSkill}
+            renderActions={(skill, index) => (
+              <RowActions
+                index={index}
+                total={content.skills.length}
+                onMove={(direction) =>
+                  updateContent((current) => ({
+                    ...current,
+                    skills: moveItem(current.skills, index, direction),
+                  }))
                 }
+                onRemove={() => removeSkill(skill.id)}
               />
-            ))}
-
-            <RowActions
-              index={index}
-              total={content.skills.length}
-              onMove={(direction) =>
-                updateContent((current) => ({
-                  ...current,
-                  skills: moveItem(
-                    current.skills,
-                    index,
-                    direction,
-                  ),
-                }))
-              }
-              onRemove={() => removeSkill(skill.id)}
-            />
-          </fieldset>
-        ))}
+            )}
+          />
+        </div>
 
         <button
           type="button"

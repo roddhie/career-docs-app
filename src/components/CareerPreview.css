@@ -216,19 +216,10 @@
   }
 }
 
-/* 技術一覧：分類を広げ、その分だけ経験を狭める */
-.career-document .career-skills-table th:nth-child(1) {
-  width: 20%;
-}
-
-.career-document .career-skills-table th:nth-child(2) {
-  width: 20%;
-}
-
-.career-document .career-skills-table th:nth-child(3) {
-  width: 10%;
-}
-
-.career-document .career-skills-table th:nth-child(4) {
-  width: 50%;
+/* A4 minus the 15mm margins on each side: match the editing table. */
+@media screen {
+  .career-document {
+    box-sizing: content-box;
+    width: 180mm;
+  }
 }
