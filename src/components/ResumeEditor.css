@@ -1,68 +1,15 @@
-.resume-editor {
-  --document-line-height: var(--resume-line-height);
+.resume-text-field {
+  overflow-x: auto;
+  padding-inline: 2px;
 }
 
-.resume-name-input {
-  --document-text-width: calc(
-    var(--document-content-width) - var(--resume-photo-column-width) - var(--resume-personal-gap)
-    - 2px - 2 * var(--resume-text-padding-inline)
-  );
-}
-
-.resume-full-name-input {
-  font-size: 18pt;
-}
-
-.resume-address-input {
-  --document-text-width: calc(
-    (var(--document-content-width) - 2px) * var(--resume-address-main-share) - 2 * var(--resume-text-padding-inline)
-  );
-}
-
-.resume-address-right-input {
-  --document-text-width: calc(
-    (var(--document-content-width) - 2px) * (1 - var(--resume-address-main-share))
-    - 1px - 2 * var(--resume-text-padding-inline)
-  );
-}
-
-.resume-box-input {
-  --document-text-width: calc(var(--document-content-width) - 2px - 2 * var(--resume-text-padding-inline));
-}
-
-.resume-contact-input {
-  display: block;
-  position: relative;
-}
-
-.resume-contact-input textarea {
-  text-indent: var(--postal-prefix-width);
-}
-
-.resume-postal-prefix {
-  position: absolute;
-  inset-block-start: 8px;
-  inset-inline-start: 0;
-  pointer-events: none;
+.resume-text-field textarea {
+  /* 入力枠の余白を保ち、本文の文字幅を書類の欄と揃える。 */
+  box-sizing: content-box;
+  width: calc(var(--document-content-width) - 2px - 2 * var(--resume-text-padding-inline));
   font-family: var(--document-font-family);
   font-size: var(--document-font-size);
   line-height: var(--resume-line-height);
-  color: #111;
-  white-space: pre;
-}
-
-.resume-history-input {
-  /* 本文幅から年・月の列と、表・セルの罫線と余白を引く。 */
-  --document-text-width: calc(
-    var(--document-content-width) - var(--resume-history-year-width)
-    - var(--resume-history-month-width) - 2px - 2 * var(--resume-history-padding-inline)
-  );
-}
-
-.resume-text-input {
-  --document-input-rows: 4;
-}
-
-.resume-motivation-input {
-  --document-input-rows: 6;
+  overflow-wrap: anywhere;
+  scrollbar-width: none;
 }
