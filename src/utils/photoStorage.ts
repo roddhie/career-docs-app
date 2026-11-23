@@ -125,6 +125,7 @@ export async function loadPhoto(
     if (error instanceof DOMException && error.name === 'NotFoundError') {
       throw new Error(
         '保存した写真が見つかりません。データ保存フォルダを確認するか、写真を選択し直してください。',
+        {cause: error},
       )
     }
 

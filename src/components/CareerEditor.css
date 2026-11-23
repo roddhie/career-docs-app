@@ -1,3 +1,8 @@
+.career-editor {
+  --document-line-height: var(--career-line-height);
+  --document-input-rows: 4;
+}
+
 /* 入力欄を罫線付きの2列に配置する */
 .career-form-grid {
   display: grid;
@@ -23,11 +28,20 @@
   grid-column: 1 / -1;
 }
 
-.career-form-grid input:not([type="checkbox"]),
-.career-form-grid textarea {
+.career-form-grid input:not([type="checkbox"]) {
   min-width: 0;
   margin: 6px 0 0;
   padding: 8px;
+}
+
+.career-form-grid .document-text-input {
+  --document-line-height: var(--career-detail-line-height);
+  /* colspan=3 の文字領域。外側の罫線とセルの罫線・余白を引く。 */
+  --document-text-width: calc(
+    (var(--document-content-width) - 1px) * (1 - var(--career-detail-label-share))
+    - 1px - 2 * var(--career-detail-padding-inline)
+  );
+  margin: 6px 0 0;
 }
 
 .career-form-grid > .checkbox-label {

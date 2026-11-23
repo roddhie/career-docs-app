@@ -517,6 +517,7 @@ function removePhoto() {
         throw new Error(
           'profile.jsonがありません。' +
             '先に「現在のプロフィールを共通用に保存」を押してください。',
+            {cause: error}
         )
       }
 

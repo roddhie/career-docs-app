@@ -34,10 +34,11 @@ function TextField({
   disabled = false,
 }: TextFieldProps) {
     return (
-    <label className={multiline ? 'career-field-wide' : undefined}>
+    <label className={multiline ? 'career-field-wide document-text-label' : undefined}>
       {label}
       {multiline ? (
         <textarea
+          className="document-text-input"
           rows={4}
           value={value}
           disabled={disabled}
@@ -314,7 +315,7 @@ export function CareerEditor({
   }
 
   return (
-    <fieldset className="career-editor" disabled={disabled}>
+    <fieldset className="document-editor career-editor" disabled={disabled}>
       <legend>職務経歴書の編集</legend>
 
       <TextField
@@ -336,20 +337,19 @@ export function CareerEditor({
         <div className="skills-editor-scroll" role="region" aria-label="技術・スキルの編集表" tabIndex={0}>
           <SkillsTable
             skills={content.skills}
-            onChange={updateSkill}
-            renderActions={(skill, index) => (
-              <RowActions
-                index={index}
-                total={content.skills.length}
-                onMove={(direction) =>
-                  updateContent((current) => ({
-                    ...current,
-                    skills: moveItem(current.skills, index, direction),
-                  }))
-                }
-                onRemove={() => removeSkill(skill.id)}
-              />
-            )}
+            editing={{
+              onChange: updateSkill,
+              onMove: (skillId, direction) =>
+                updateContent((current) => ({
+                  ...current,
+                  skills: moveItem(
+                    current.skills,
+                    current.skills.findIndex((skill) => skill.id === skillId),
+                    direction,
+                  ),
+                })),
+              onRemove: removeSkill,
+            }}
           />
         </div>
 

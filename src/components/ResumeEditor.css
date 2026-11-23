@@ -1,0 +1,15 @@
+.resume-text-field {
+  overflow-x: auto;
+  padding-inline: 2px;
+}
+
+.resume-text-field textarea {
+  /* 入力枠の余白を保ち、本文の文字幅を書類の欄と揃える。 */
+  box-sizing: content-box;
+  width: calc(var(--document-content-width) - 2px - 2 * var(--resume-text-padding-inline));
+  font-family: var(--document-font-family);
+  font-size: var(--document-font-size);
+  line-height: var(--resume-line-height);
+  overflow-wrap: anywhere;
+  scrollbar-width: none;
+}

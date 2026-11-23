@@ -1,9 +1,10 @@
-import type {
+﻿import type {
   ApplicationDocument,
   ContactAddress,
   DatedEntry,
   PersonalProfile,
 } from '../types/documents'
+import './ResumeEditor.css'
 
 type ResumeEditorProps = {
   application: ApplicationDocument
@@ -232,7 +233,7 @@ export default function ResumeEditor({
   }
 
   return (
-    <fieldset disabled={disabled}>
+    <fieldset className="document-editor" disabled={disabled}>
       <legend>
         {section === 'basic' ? '応募先・基本情報' : '履歴書の編集'}
       </legend>
@@ -361,7 +362,7 @@ export default function ResumeEditor({
 
       <h3>志望動機・本人希望</h3>
 
-      <label>
+      <label className="resume-text-field">
         志望の動機、特技、アピールポイントなど
         <textarea
           rows={6}
@@ -376,7 +377,7 @@ export default function ResumeEditor({
         />
       </label>
 
-      <label>
+      <label className="resume-text-field">
         本人希望記入欄
         <textarea
           rows={4}

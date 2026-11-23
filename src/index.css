@@ -2,6 +2,24 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* A4 本文幅（210mm から左右の余白 15mm を引いた幅） */
+  --document-content-width: 180mm;
+  --document-font-family: "Yu Gothic", "Meiryo", sans-serif;
+  --document-font-size: 10pt;
+  --career-line-height: 1.6;
+  --career-detail-line-height: 1.5;
+  --career-detail-label-share: 0.18;
+  --career-detail-padding-inline: 8px;
+  --resume-line-height: 1.5;
+  --resume-text-padding-inline: 3mm;
+  --resume-photo-column-width: 35mm;
+  --resume-personal-gap: 6mm;
+  --resume-history-year-width: 18mm;
+  --resume-history-month-width: 12mm;
+  --resume-history-padding-inline: 2mm;
+}
+
 body {
   margin: 0;
   background: #f5f7fa;
@@ -11,7 +29,6 @@ body {
 }
 
 main {
-  width: min(100% - 32px, 760px);
   margin: 40px auto;
 }
 
@@ -49,6 +66,42 @@ textarea {
 
 textarea {
   resize: vertical;
+}
+
+.document-editor {
+  min-inline-size: 0;
+}
+
+.document-editor input:not([type="checkbox"]) {
+  max-inline-size: var(--document-content-width);
+}
+
+.document-text-label {
+  display: block;
+  min-inline-size: 0;
+  overflow-x: auto;
+  padding-inline: 2px;
+}
+
+.document-text-input {
+  inline-size: var(--document-text-width, var(--document-content-width));
+  min-block-size: calc(var(--document-input-rows, 1) * 1lh + 16px);
+  field-sizing: content;
+  padding: 8px 0;
+  border: 0;
+  background: #f8fafc;
+  box-shadow: 0 0 0 1px #94a3b8;
+  color: #111;
+  font-family: var(--document-font-family);
+  font-size: var(--document-font-size);
+  line-height: var(--document-line-height);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  resize: none;
+}
+
+.document-text-input:focus-visible {
+  outline: 2px solid #1d4ed8;
 }
 
 button {
@@ -130,6 +183,10 @@ button:disabled {
 }
 
 @media screen {
+  main {
+    width: min(100% - 32px, 840px);
+  }
+
   /* 長い入力画面でも、タブを切り替えやすくする */
   .editor-tabs {
     position: sticky;

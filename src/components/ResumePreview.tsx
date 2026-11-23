@@ -116,7 +116,7 @@ export default function ResumePreview({
                 <span>ふりがな</span>
                 <p>{profile.fullNameKana}</p>
               </div>
-              <div className="resume-field">
+              <div className="resume-field resume-dotted-divider">
                 <span>氏名</span>
                 <p className="resume-name">{profile.fullName}</p>
               </div>
@@ -125,7 +125,7 @@ export default function ResumePreview({
                   {formatDate(profile.birthDate)}生
                   （満{getAge(profile.birthDate, documentDate)}歳）
                 </p>
-                <p>性別（任意）：{profile.gender}</p>
+                <p className="resume-dotted-divider">性別（任意）：{profile.gender}</p>
               </div>
             </div>
 
@@ -139,18 +139,20 @@ export default function ResumePreview({
           </div>
 
           <div className="resume-address">
-            <div className="resume-address-cell resume-address-top">
+            <div className="resume-address-cell">
               <span>ふりがな</span>
               <p>{profile.currentAddress.addressKana}</p>
             </div>
 
-            <div className="resume-address-cell resume-address-top resume-address-right">
+            <div className="resume-address-cell resume-address-right">
               <span>電話</span>
               <p>{profile.phone}</p>
             </div>
 
+            <div className="resume-address-divider resume-dotted-divider" aria-hidden="true" />
+
             <div className="resume-address-cell">
-              <span>現住所　〒{profile.currentAddress.postalCode}</span>
+              <span>現住所{'\u3000'}〒{profile.currentAddress.postalCode}</span>
               <p>{profile.currentAddress.address}</p>
             </div>
 
@@ -166,7 +168,9 @@ export default function ResumePreview({
               {!profile.useCurrentAddressForContact &&
                 profile.contactAddress.addressKana}
             </p>
-            <p>{contactAddress}</p>
+            <p className={profile.useCurrentAddressForContact ? undefined : 'resume-dotted-divider'}>
+              {contactAddress}
+            </p>
           </div>
 
           <HistoryTable
