@@ -4,9 +4,9 @@
   background: white;
   color: #111;
   border: 1px solid #cbd5e1;
-  font-family: "Yu Gothic", "Meiryo", sans-serif;
-  font-size: 10pt;
-  line-height: 1.6;
+  font-family: var(--document-font-family);
+  font-size: var(--document-font-size);
+  line-height: var(--career-line-height);
   overflow-wrap: anywhere;
 }
 
@@ -176,11 +176,11 @@
 }
 
 .career-document .career-detail-table .career-label-column {
-  width: 18%;
+  width: calc(100% * var(--career-detail-label-share));
 }
 
 .career-document .career-detail-table .career-value-column {
-  width: 32%;
+  width: calc(50% - 100% * var(--career-detail-label-share));
 }
 
 /* 既存の技術一覧用の列幅指定を、この表では解除する */
@@ -192,8 +192,8 @@
 
 .career-document .career-detail-table th,
 .career-document .career-detail-table td {
-  padding: 5px 8px;
-  line-height: 1.5;
+  padding: 5px var(--career-detail-padding-inline);
+  line-height: var(--career-detail-line-height);
   vertical-align: top;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -220,6 +220,6 @@
 @media screen {
   .career-document {
     box-sizing: content-box;
-    width: 180mm;
+    width: var(--document-content-width);
   }
 }

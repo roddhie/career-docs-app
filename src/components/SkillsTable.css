@@ -4,13 +4,12 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  font-family: "Yu Gothic", "Meiryo", sans-serif;
-  font-size: 10pt;
-  line-height: 1.6;
+  font-family: var(--document-font-family);
+  font-size: var(--document-font-size);
+  line-height: var(--career-line-height);
   color: #111;
   background: white;
 }
-
 .career-skills-table th,
 .career-skills-table td,
 .career-document .career-skills-table th,
@@ -61,21 +60,61 @@
   max-width: 100%;
   overflow-x: auto;
   margin-bottom: 16px;
+  scroll-padding-inline-end: var(--skill-action-width);
+  --skill-action-width: 33px;
 }
 
-.skills-editor-scroll .career-skills-table {
-  width: 180mm;
-  min-width: 180mm;
+.skills-table-editable {
+  --skill-fields-width: calc(var(--document-content-width) - 1px);
+  width: calc(var(--document-content-width) + 2 * var(--skill-action-width));
 }
 
-.career-skills-table .skill-actions-row td {
+.skill-action-column {
+  width: var(--skill-action-width);
+}
+
+.career-skills-table .skill-action-cell {
+  padding: 2px;
   background: #f8fafc;
 }
 
-.career-skills-table .actions button {
-  padding: 4px 12px;
+.skill-delete-cell {
+  position: sticky;
+  inset-inline-end: 0;
+  box-shadow: inset 1px 0 #555;
 }
 
-.career-editor {
-  min-inline-size: 0;
+.skill-move-buttons {
+  display: grid;
+  gap: 2px;
+}
+
+.skill-action-cell button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: #172033;
+}
+
+.skill-action-cell button:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.skill-action-cell button:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: -2px;
+}
+
+.skill-action-cell svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

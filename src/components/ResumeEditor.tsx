@@ -1,9 +1,11 @@
+import { useLayoutEffect, useRef } from 'react'
 import type {
   ApplicationDocument,
   ContactAddress,
   DatedEntry,
   PersonalProfile,
 } from '../types/documents'
+import './ResumeEditor.css'
 
 type ResumeEditorProps = {
   application: ApplicationDocument
@@ -24,6 +26,7 @@ type EntryEditorProps = {
 type AddressEditorProps = {
   title: string
   address: ContactAddress
+  isContact?: boolean
   onChange: (address: ContactAddress) => void
 }
 
@@ -36,14 +39,15 @@ const personalFields: {
     | 'phone'
     | 'email'
   label: string
-  type: string
+  type: 'text' | 'date' | 'tel' | 'email'
+  textClass?: string
 }[] = [
-  { key: 'fullName', label: '氏名', type: 'text' },
-  { key: 'fullNameKana', label: 'ふりがな', type: 'text' },
+  { key: 'fullName', label: '氏名', type: 'text', textClass: 'resume-name-input resume-full-name-input' },
+  { key: 'fullNameKana', label: 'ふりがな', type: 'text', textClass: 'resume-name-input' },
   { key: 'birthDate', label: '生年月日', type: 'date' },
   { key: 'gender', label: '性別（任意・空欄可）', type: 'text' },
-  { key: 'phone', label: '電話番号', type: 'tel' },
-  { key: 'email', label: 'メールアドレス', type: 'email' },
+  { key: 'phone', label: '電話番号', type: 'tel', textClass: 'resume-address-right-input' },
+  { key: 'email', label: 'メールアドレス', type: 'email', textClass: 'resume-address-right-input' },
 ]
 
 const addressFields: {
@@ -58,24 +62,58 @@ const addressFields: {
 function AddressEditor({
   title,
   address,
+  isContact = false,
   onChange,
 }: AddressEditorProps) {
+  const prefixRef = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    const prefix = prefixRef.current
+    const field = prefix?.parentElement
+    if (!prefix || !field) return
+
+    const alignAddress = () => {
+      field.style.setProperty('--postal-prefix-width', `${prefix.getBoundingClientRect().width}px`)
+    }
+
+    alignAddress()
+    const observer = new ResizeObserver(alignAddress)
+    observer.observe(prefix)
+    return () => observer.disconnect()
+  }, [isContact])
+
   return (
     <div>
       <h3>{title}</h3>
 
       {addressFields.map((field) => (
-        <label key={field.key}>
+        <label key={field.key} className={field.key === 'postalCode' ? undefined : 'document-text-label'}>
           {field.label}
-          <input
-            value={address[field.key]}
-            onChange={(event) =>
-              onChange({
-                ...address,
-                [field.key]: event.target.value,
-              })
-            }
-          />
+          {field.key === 'postalCode' ? (
+            <input
+              value={address[field.key]}
+              onChange={(event) => onChange({ ...address, [field.key]: event.target.value })}
+            />
+          ) : isContact && field.key === 'address' ? (
+            <span className="resume-contact-input">
+              <span ref={prefixRef} className="resume-postal-prefix" aria-hidden="true">
+                {`〒${address.postalCode} `}
+              </span>
+              <textarea
+                className="document-text-input resume-box-input"
+                rows={1}
+                value={address.address}
+                onChange={(event) => onChange({ ...address, address: event.target.value })}
+              />
+            </span>
+          ) : (
+            <textarea
+              className={`document-text-input ${isContact ? 'resume-box-input' : 'resume-address-input'}`}
+              rows={1}
+              value={address[field.key]}
+              onChange={(event) => onChange({ ...address, [field.key]: event.target.value })}
+            />
+          )}
         </label>
       ))}
     </div>
@@ -167,9 +205,11 @@ function EntryEditor({
             </label>
           </div>
 
-          <label>
+          <label className="document-text-label">
             内容
-            <input
+            <textarea
+              className="document-text-input resume-history-input"
+              rows={1}
               value={entry.description}
               onChange={(event) =>
                 updateEntry(index, 'description', event.target.value)
@@ -232,7 +272,7 @@ export default function ResumeEditor({
   }
 
   return (
-    <fieldset disabled={disabled}>
+    <fieldset className="document-editor resume-editor" disabled={disabled}>
       <legend>
         {section === 'basic' ? '応募先・基本情報' : '履歴書の編集'}
       </legend>
@@ -276,15 +316,23 @@ export default function ResumeEditor({
       <h3>基本情報</h3>
 
       {personalFields.map((field) => (
-        <label key={field.key}>
+        <label key={field.key} className={field.textClass ? 'document-text-label' : undefined}>
           {field.label}
-          <input
-            type={field.type}
-            value={profile[field.key]}
-            onChange={(event) =>
-              updateProfile({ [field.key]: event.target.value })
-            }
-          />
+          {field.textClass ? (
+            <textarea
+              className={`document-text-input ${field.textClass}`}
+              rows={1}
+              inputMode={field.type === 'date' ? undefined : field.type}
+              value={profile[field.key]}
+              onChange={(event) => updateProfile({ [field.key]: event.target.value })}
+            />
+          ) : (
+            <input
+              type={field.type}
+              value={profile[field.key]}
+              onChange={(event) => updateProfile({ [field.key]: event.target.value })}
+            />
+          )}
         </label>
       ))}
 
@@ -311,6 +359,7 @@ export default function ResumeEditor({
         <AddressEditor
           title="別の連絡先"
           address={profile.contactAddress}
+          isContact
           onChange={(address) =>
             updateProfile({ contactAddress: address })
           }
@@ -361,9 +410,10 @@ export default function ResumeEditor({
 
       <h3>志望動機・本人希望</h3>
 
-      <label>
+      <label className="document-text-label">
         志望の動機、特技、アピールポイントなど
         <textarea
+          className="document-text-input resume-box-input resume-text-input resume-motivation-input"
           rows={6}
           value={application.resume.motivation}
           onChange={(event) => {
@@ -376,9 +426,10 @@ export default function ResumeEditor({
         />
       </label>
 
-      <label>
+      <label className="document-text-label">
         本人希望記入欄
         <textarea
+          className="document-text-input resume-box-input resume-text-input"
           rows={4}
           value={application.resume.personalRequests}
           onChange={(event) => {
