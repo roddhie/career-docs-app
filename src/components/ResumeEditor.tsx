@@ -4,6 +4,7 @@
   DatedEntry,
   PersonalProfile,
 } from '../types/documents'
+import RowActionButton from './RowActionButton'
 import './ResumeEditor.css'
 
 type ResumeEditorProps = {
@@ -138,69 +139,67 @@ function EntryEditor({
     <section className="entry-editor">
       <h3>{title}</h3>
 
-      {entries.map((entry, index) => (
-        <fieldset key={entry.id} className="entry-row">
-          <legend>{title} {index + 1}行目</legend>
+      {entries.map((entry, index) => {
+        const rowLabel = `${title} ${index + 1}行目`
 
-          <div className="entry-date">
-            <label>
-              年（西暦）
-              <input
-                inputMode="numeric"
-                maxLength={4}
-                value={entry.year}
-                onChange={(event) =>
-                  updateEntry(index, 'year', event.target.value)
-                }
-              />
-            </label>
+        return (
+          <fieldset key={entry.id} className="entry-row resume-entry-row">
+            <legend>{rowLabel}</legend>
 
-            <label>
-              月
-              <input
-                inputMode="numeric"
-                maxLength={2}
-                value={entry.month}
-                onChange={(event) =>
-                  updateEntry(index, 'month', event.target.value)
-                }
-              />
-            </label>
-          </div>
+            <div className="resume-entry-with-actions">
+              <div className="resume-entry-move-buttons">
+                <RowActionButton
+                  action="up"
+                  rowLabel={rowLabel}
+                  disabled={index === 0}
+                  onClick={() => moveEntry(index, -1)}
+                />
+                <RowActionButton
+                  action="down"
+                  rowLabel={rowLabel}
+                  disabled={index === entries.length - 1}
+                  onClick={() => moveEntry(index, 1)}
+                />
+              </div>
 
-          <label>
-            内容
-            <input
-              value={entry.description}
-              onChange={(event) =>
-                updateEntry(index, 'description', event.target.value)
-              }
-            />
-          </label>
+              <div className="resume-entry-scroll" role="region" aria-label={`${rowLabel}の入力欄`} tabIndex={0}>
+                <div className="resume-entry-fields">
+                  <label>
+                    年（西暦）
+                    <input
+                      inputMode="numeric"
+                      maxLength={4}
+                      value={entry.year}
+                      onChange={(event) => updateEntry(index, 'year', event.target.value)}
+                    />
+                  </label>
 
-          <div className="actions">
-            <button
-              type="button"
-              disabled={index === 0}
-              onClick={() => moveEntry(index, -1)}
-            >
-              上へ
-            </button>
+                  <label>
+                    月
+                    <input
+                      inputMode="numeric"
+                      maxLength={2}
+                      value={entry.month}
+                      onChange={(event) => updateEntry(index, 'month', event.target.value)}
+                    />
+                  </label>
 
-            <button
-              type="button"
-              disabled={index === entries.length - 1}
-              onClick={() => moveEntry(index, 1)}
-            >
-              下へ
-            </button>
+                  <label>
+                    内容
+                    <textarea
+                      rows={1}
+                      value={entry.description}
+                      onChange={(event) => updateEntry(index, 'description', event.target.value)}
+                    />
+                  </label>
+                </div>
+              </div>
 
-            <button type="button" onClick={() => removeEntry(index)}>
-              削除
-            </button>
-          </div>
-        </fieldset>
-      ))}
+              <RowActionButton action="delete" rowLabel={rowLabel} onClick={() => removeEntry(index)} />
+            </div>
+          </fieldset>
+        )
+      })}
 
       <button
         type="button"

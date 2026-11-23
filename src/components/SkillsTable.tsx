@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import type { SkillEntry } from '../types/documents'
+import RowActionButton from './RowActionButton'
 import './SkillsTable.css'
 
 const fields = [
@@ -60,24 +61,18 @@ export default function SkillsTable({ skills, editing }: {
             {editing && (
               <td className="skill-action-cell">
                 <div className="skill-move-buttons">
-                  <button
-                    type="button"
-                    aria-label={`技術・スキル${index + 1}を上へ移動`}
-                    title="上へ移動"
+                  <RowActionButton
+                    action="up"
+                    rowLabel={`技術・スキル${index + 1}`}
                     disabled={index === 0}
                     onClick={() => editing.onMove(skill.id, -1)}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" /></svg>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`技術・スキル${index + 1}を下へ移動`}
-                    title="下へ移動"
+                  />
+                  <RowActionButton
+                    action="down"
+                    rowLabel={`技術・スキル${index + 1}`}
                     disabled={index === skills.length - 1}
                     onClick={() => editing.onMove(skill.id, 1)}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m-6-6 6 6 6-6" /></svg>
-                  </button>
+                  />
                 </div>
               </td>
             )}
@@ -94,16 +89,11 @@ export default function SkillsTable({ skills, editing }: {
             ))}
             {editing && (
               <td className="skill-action-cell skill-delete-cell">
-                <button
-                  type="button"
-                  aria-label={`技術・スキル${index + 1}を削除`}
-                  title="削除"
+                <RowActionButton
+                  action="delete"
+                  rowLabel={`技術・スキル${index + 1}`}
                   onClick={() => editing.onRemove(skill.id)}
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 6h18M9 6V3h6v3m4 0-1 15H6L5 6m5 4v7m4-7v7" />
-                  </svg>
-                </button>
+                />
               </td>
             )}
           </tr>

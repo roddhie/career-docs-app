@@ -147,12 +147,6 @@ button:disabled {
   padding: 16px;
 }
 
-.entry-date {
-  display: grid;
-  grid-template-columns: 140px 100px;
-  gap: 12px;
-}
-
 .editor-tabs {
   display: flex;
   flex-wrap: wrap;
