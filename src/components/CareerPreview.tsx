@@ -1,3 +1,4 @@
+import SkillsTable from './SkillsTable'
 import type {
   CareerHistoryContent,
   CareerSectionId,
@@ -50,26 +51,7 @@ export default function CareerPreview({
         return (
           <>
             <h2>活かせる経験・知識・技術</h2>
-            <table className="career-skills-table">
-              <thead>
-                <tr>
-                  <th scope="col">分類</th>
-                  <th scope="col">技術</th>
-                  <th scope="col">経験</th>
-                  <th scope="col">対応できる内容</th>
-                </tr>
-              </thead>
-              <tbody>
-                {content.skills.map((skill) => (
-                  <tr key={skill.id}>
-                    <td>{skill.category}</td>
-                    <td>{skill.technology}</td>
-                    <td>{skill.experience}</td>
-                    <td>{skill.description}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <SkillsTable skills={content.skills} />
           </>
         )
 
