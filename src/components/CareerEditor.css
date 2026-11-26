@@ -5,6 +5,7 @@
 
 /* 入力欄を罫線付きの2列に配置する */
 .career-form-grid {
+  --career-field-padding: 12px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
@@ -14,18 +15,35 @@
 }
 
 /* 各項目を表のセルのように表示する */
-.career-form-grid > label {
+:is(.career-form-grid, .career-field-row) > label {
   min-width: 0;
   margin: 0;
-  padding: 12px;
+  padding: var(--career-field-padding);
   background: white;
   overflow-wrap: anywhere;
 }
 
-/* 会社名・プロジェクト名と長文欄は2列分を使う */
+/* プロジェクト名と長文欄はフォームの全幅を使う */
 .career-form-grid > label:first-child,
 .career-form-grid > .career-field-wide {
   grid-column: 1 / -1;
+}
+
+.career-field-row {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 1px;
+  overflow-x: auto;
+}
+
+.career-company-fields {
+  grid-template-columns:
+    calc(var(--document-content-width) + 2 * var(--career-field-padding))
+    minmax(10rem, 1fr);
+}
+
+.career-period-fields {
+  grid-template-columns: repeat(2, minmax(9rem, 1fr)) minmax(max-content, 1fr);
 }
 
 .career-form-grid input:not([type="checkbox"]) {
@@ -44,7 +62,7 @@
   margin: 6px 0 0;
 }
 
-.career-form-grid > .checkbox-label {
+:is(.career-form-grid, .career-field-row) > .checkbox-label {
   align-items: center;
   gap: 8px;
 }
@@ -55,7 +73,14 @@
   margin: 0;
 }
 
-/* 狭い画面では入力欄を潰さず1列に戻す */
+/* PDFと同じ幅の会社名欄の横に、雇用形態を表示する余白を取る。 */
+@media screen {
+  main[data-active-tab="career"] {
+    width: min(100% - 32px, var(--document-content-width) + 18rem);
+  }
+}
+
+/* 狭い画面ではプロジェクト欄の2列を1列に戻す */
 @media screen and (max-width: 640px) {
   .career-form-grid {
     grid-template-columns: minmax(0, 1fr);
