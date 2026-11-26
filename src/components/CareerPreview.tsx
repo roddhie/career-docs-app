@@ -51,7 +51,7 @@ export default function CareerPreview({
         return (
           <>
             <h2>活かせる経験・知識・技術</h2>
-            <SkillsTable skills={content.skills} />
+            <SkillsTable skills={content.skills} columnWidths={layout.skillColumnWidths} />
           </>
         )
 

@@ -83,11 +83,16 @@ export type CareerSectionId =
   | 'careers'
   | 'selfPromotion'
 
+export type SkillColumnWidths = [number, number, number, number]
+
 export type DocumentLayout = {
   resumeTemplate: 'mhlw-a4'
   resumeTemplateVersion: 1
   careerTemplate: 'standard-a4'
   careerTemplateVersion: 1
+
+  // 技術・スキル表の列幅（分類、技術、経験、対応できる内容の順で合計100%）。
+  skillColumnWidths?: SkillColumnWidths
 
   // この配列の順番で職務経歴書の各セクションを表示する。
   careerSectionOrder: CareerSectionId[]

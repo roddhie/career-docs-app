@@ -333,11 +333,21 @@ export function CareerEditor({
       <section className="entry-editor">
         <h3>技術・スキル</h3>
 
-        <p>書類と同じ幅で編集できます。狭い画面では表を横にスクロールしてください。</p>
+        <p>
+          見出しの境界をドラッグすると、プレビューとPDFの列幅も変わります。
+          狭い画面では表を横にスクロールできます。
+        </p>
         <div className="skills-editor-scroll" role="region" aria-label="技術・スキルの編集表" tabIndex={0}>
           <SkillsTable
+            key={application.id}
             skills={content.skills}
+            columnWidths={application.layout.skillColumnWidths}
             editing={{
+              onColumnWidthsChange: (skillColumnWidths) =>
+                onChange((current) => ({
+                  ...current,
+                  layout: { ...current.layout, skillColumnWidths },
+                })),
               onChange: updateSkill,
               onMove: (skillId, direction) =>
                 updateContent((current) => ({
