@@ -1,4 +1,5 @@
 import type { ApplicationDocument } from '../types/documents'
+import { isSkillColumnWidths } from './skillColumnWidths'
 
 type JsonObject = Record<string, unknown>
 
@@ -132,6 +133,7 @@ function isLayout(value: unknown): boolean {
     value.resumeTemplateVersion === 1 &&
     value.careerTemplate === 'standard-a4' &&
     value.careerTemplateVersion === 1 &&
+    (value.skillColumnWidths === undefined || isSkillColumnWidths(value.skillColumnWidths)) &&
     Array.isArray(order) &&
     order.length === 4 &&
     order.every(isSectionId) &&

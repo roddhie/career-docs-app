@@ -69,6 +69,36 @@
   width: calc(var(--document-content-width) + 2 * var(--skill-action-width));
 }
 
+.skills-table-editable th:not(.skill-action-cell) {
+  position: relative;
+}
+
+.skill-column-resize {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: -8px;
+  z-index: 1;
+  width: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.skill-column-resize::before {
+  position: absolute;
+  inset: 4px 6px;
+  border-radius: 2px;
+  background: #64748b;
+  content: '';
+}
+
+.skill-column-resize:is(:hover, :focus-visible, :active)::before {
+  background: #1d4ed8;
+}
+
 .skill-action-column {
   width: var(--skill-action-width);
 }
