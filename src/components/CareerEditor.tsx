@@ -386,54 +386,57 @@ export function CareerEditor({
             <legend>職歴 {careerIndex + 1}</legend>
 
             <div className="career-form-grid">
-
-              <TextField
-                label="会社名"
-                value={career.companyName}
-                onChange={(companyName) =>
-                  patchCareer(career.id, { companyName })
-                }
-              />
-
-              <TextField
-                label="入社年月"
-                type="month"
-                value={career.startDate}
-                onChange={(startDate) =>
-                  patchCareer(career.id, { startDate })
-                }
-              />
-
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={career.ongoing}
-                  onChange={(event) =>
-                    patchCareer(career.id, {
-                      ongoing: event.target.checked,
-                    })
+              <div className="career-field-row career-company-fields" role="group" aria-label="会社名と雇用形態">
+                <TextField
+                  label="会社名"
+                  value={career.companyName}
+                  onChange={(companyName) =>
+                    patchCareer(career.id, { companyName })
                   }
                 />
-                現在も在籍している
-              </label>
 
-              <TextField
-                label="退社年月（在籍中の場合は入力不要）"
-                type="month"
-                value={career.endDate}
-                disabled={career.ongoing}
-                onChange={(endDate) =>
-                  patchCareer(career.id, { endDate })
-                }
-              />
+                <TextField
+                  label="雇用形態"
+                  value={career.employmentType}
+                  onChange={(employmentType) =>
+                    patchCareer(career.id, { employmentType })
+                  }
+                />
+              </div>
 
-              <TextField
-                label="雇用形態"
-                value={career.employmentType}
-                onChange={(employmentType) =>
-                  patchCareer(career.id, { employmentType })
-                }
-              />
+              <div className="career-field-row career-period-fields" role="group" aria-label="在籍期間">
+                <TextField
+                  label="入社年月"
+                  type="month"
+                  value={career.startDate}
+                  onChange={(startDate) =>
+                    patchCareer(career.id, { startDate })
+                  }
+                />
+
+                <TextField
+                  label="退社年月"
+                  type="month"
+                  value={career.endDate}
+                  disabled={career.ongoing}
+                  onChange={(endDate) =>
+                    patchCareer(career.id, { endDate })
+                  }
+                />
+
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={career.ongoing}
+                    onChange={(event) =>
+                      patchCareer(career.id, {
+                        ongoing: event.target.checked,
+                      })
+                    }
+                  />
+                  現在も在籍している
+                </label>
+              </div>
 
               <TextField
                 label="会社の事業内容"
